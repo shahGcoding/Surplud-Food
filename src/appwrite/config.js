@@ -94,37 +94,74 @@ export class Service{
 
     //save user data
 
+    // async saveUserData(userId, userData) {
+    //     try {
+
+    //         console.log("Saving User Data:", userData);
+
+    //         // Check if the user already exists in the collection
+    //         const existingUsers = await this.databases.listDocuments(
+    //             conf.appwriteDatabaseId,
+    //             conf.appwriteUserCollectionId,
+    //             [Query.equal("email", userData.email)] // Check if the same userId exists
+    //         );
+    
+    //         if (existingUsers.total > 0) {
+    //             console.log("User already exists in the database.");
+    //             return existingUsers.documents[0];  // Return existing user data
+    //         }
+    
+    //         // If the user does not exist, create a new record
+    //         return await this.databases.createDocument(
+    //             conf.appwriteDatabaseId,
+    //             conf.appwriteUserCollectionId,
+    //             ID.unique(),  // Ensure a unique document ID
+                
+    //             {
+    //             userId,    
+    //             name: userData.name,
+    //             email: userData.email,
+    //             phone: userData.phone || "",  // Ensure it's not undefined
+    //             role: userData.role || "",
+    //             businessName: userData.businessName || "",
+    //             businessAddress: userData.businessAddress || ""
+    //             }
+    //         );
+    //     } catch (error) {
+    //         console.error("Error saving user data:", error);
+    //         throw error;
+    //     }
+    // }
+
     async saveUserData(userId, userData) {
         try {
-
             console.log("Saving User Data:", userData);
-
-            // Check if the user already exists in the collection
+    
+            // Check if the user already exists
             const existingUsers = await this.databases.listDocuments(
                 conf.appwriteDatabaseId,
                 conf.appwriteUserCollectionId,
-                [Query.equal("email", userData.email)] // Check if the same userId exists
+                [Query.equal("userId", userId)]
             );
     
             if (existingUsers.total > 0) {
                 console.log("User already exists in the database.");
-                return existingUsers.documents[0];  // Return existing user data
+                return existingUsers.documents[0];
             }
     
-            // If the user does not exist, create a new record
+            // Create a new user document
             return await this.databases.createDocument(
                 conf.appwriteDatabaseId,
                 conf.appwriteUserCollectionId,
-                ID.unique(),  // Ensure a unique document ID
-                
+                ID.unique(),
                 {
-                userId,    
-                name: userData.name,
-                email: userData.email,
-                phone: userData.phone || "",  // Ensure it's not undefined
-                role: userData.role || "",
-                businessName: userData.businessName || "",
-                businessAddress: userData.businessAddress || ""
+                    userId,    
+                    name: userData.name,
+                    email: userData.email,
+                    phone: userData.phone || "",
+                    role: userData.role || "buyer", 
+                    businessName: userData.businessName || "",
+                    businessAddress: userData.businessAddress || ""
                 }
             );
         } catch (error) {
@@ -132,6 +169,7 @@ export class Service{
             throw error;
         }
     }
+    
     
     //file upload method
 

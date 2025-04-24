@@ -89,6 +89,10 @@ const login = async (data) => {
               })}
             />
 
+            <Link>
+            <p className="text-blue-400 m-3">forget password?</p>
+            </Link>
+
             <Select
               options={["buyer", "seller"]}
               label="Role"

@@ -1,12 +1,12 @@
 import React from 'react'
-import { SellerDash } from '../components'
+import { SellerLayout } from '../components'
 
-function SellerDashboard() {
+function SellerDash() {
   return (
-    <div className='p-8'>
-    <SellerDash />
-    </div>
+    
+    <SellerLayout />
+    
   )
 }
 
-export default SellerDashboard
+export default SellerDash

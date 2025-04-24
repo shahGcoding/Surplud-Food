@@ -16,7 +16,7 @@ const authSlice = createSlice({
             if (!user) return;
             console.log("Login Action Payload:", action.payload);
             state.status = true;
-            state.userData = { ...user, userId: user.userId }; // Ensure userId is stored
+            state.userData = user; // Ensure userId is stored
             state.role = user.role || "buyer";
         },
         logout: (state) => {

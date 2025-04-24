@@ -1,7 +1,7 @@
+// auth.js
 import conf from "../conf/conf.js";
 import config from "./config.js";
-
-import { Client, Account, ID, Databases } from "appwrite";
+import { Client, Account, ID, Databases, Query } from "appwrite";
 
 export class AuthService {
   client = new Client();
@@ -17,52 +17,52 @@ export class AuthService {
     this.databases = new Databases(this.client);
   }
 
-
-
-async createAccount({ email, password, name, role, businessName, businessAddress, phone }) {
+  async createAccount({ email, password, name, role, businessName, businessAddress, phone }) {
     try {
-        // Step 1: Create the User Account
-        const userAccount = await this.account.create(ID.unique(), email, password, name);
-        console.log("User Created:", userAccount);
+      const userAccount = await this.account.create(ID.unique(), email, password, name);
+      console.log("User Created:", userAccount);
 
-        if (userAccount) {
-            // Step 2: Auto-login after signup (required before updating prefs)
-            await this.login({ email, password });
+      if (userAccount) {
+        await this.login({ email, password });
 
-            const userPrefs = {
-                role, 
-                businessName: role === "seller" ? businessName : "",
-                businessAddress: role === "seller" ? businessAddress : "",
-                phone: role === "seller" ? phone : ""
-              };
-              await this.account.updatePrefs(userPrefs);
+        const userPrefs = {
+          role,
+          businessName: role === "seller" ? businessName : "",
+          businessAddress: role === "seller" ? businessAddress : "",
+          phone: role === "seller" ? phone : ""
+        };
+        await this.account.updatePrefs(userPrefs);
 
-            // Step 4: Save user details in your database (if needed)
-            const userId = userAccount.$id;
-            const userData = { 
-                name, 
-                email, 
-                role,
-                ...userPrefs
-            };
-            await config.saveUserData(userId, userData);
+        const userId = userAccount.$id;
+        const userData = {
+          name,
+          email,
+          role,
+          ...userPrefs
+        };
+        await config.saveUserData(userId, userData);
 
-            return userAccount;
-        }
+        return userAccount;
+      }
     } catch (error) {
-        console.error("Signup Error:", error);
-        throw error;
+      console.error("Signup Error:", error);
+      throw error;
     }
-}
-
+  }
 
   async getUserData(userId) {
     try {
-      return await this.databases.getDocument(
+      const userDocs = await this.databases.listDocuments(
         conf.appwriteDatabaseId,
         conf.appwriteUserCollectionId,
-        userId // Fetch using userId
+        [Query.equal("userId", userId)]
       );
+
+      if (userDocs.total > 0) {
+        return userDocs.documents[0];
+      } else {
+        throw new Error("User data not found in the database.");
+      }
     } catch (error) {
       console.error("Error fetching user data:", error);
       return null;
@@ -78,17 +78,17 @@ async createAccount({ email, password, name, role, businessName, businessAddress
   }
 
   async getCurrentUser() {
-
     try {
       const user = await this.account.get();
-      console.log("Raw User Data:", user); // Debugging
+      const userData = await this.getUserData(user.$id);
+
       return {
         userId: user.$id,
         email: user.email,
-        role: user.prefs?.role || "buyer", // Ensure role exists
-         businessName: user.prefs?.businessName || "",
-        businessAddress: user.prefs?.businessAddress || "",
-        phone: user.prefs?.phone || "",
+        role: userData?.role || user.prefs?.role || "buyer",
+        businessName: userData?.businessName || user.prefs?.businessName || "",
+        businessAddress: userData?.businessAddress || user.prefs?.businessAddress || "",
+        phone: userData?.phone || user.prefs?.phone || ""
       };
     } catch (error) {
       return null;
@@ -105,5 +105,4 @@ async createAccount({ email, password, name, role, businessName, businessAddress
 }
 
 const authService = new AuthService();
-
 export default authService;

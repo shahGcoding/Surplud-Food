@@ -16,7 +16,13 @@ import Carousel from "./carousel/Carousel";
 import ContactUs from "./ContactUs";
 import About from "./About";
 import AdminDash from './AdminDash/AdminDash'
-import SellerDash from './SellerDash/SellerDash'
+import SellerLayout from './SellerDash/SellerLayout'
+import SearchBar from "./SearchBar/SearchBar";
+import Filter from "./SearchBar/Filter";
+import ManageProfile from "./SellerDash/ManageProfile";
+import Dash from './SellerDash/Dash';
+import Order from "./SellerDash/Order";
+
 
 export {
     Header,
@@ -37,7 +43,12 @@ export {
     ContactUs,
     About,
     AdminDash,
-    SellerDash
+    SellerLayout,
+    SearchBar,
+    Filter,
+    ManageProfile,
+    Dash,
+    Order,
 
 
 

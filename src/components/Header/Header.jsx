@@ -17,11 +17,6 @@ function Header() {
       slug: '/',
       active: true
     },
-    {
-      name: 'Sign In /SignUp',
-      slug: "/login",
-      active: !authStatus,
-    },
     // {
     //   name: 'Signup',
     //   slug: "/signup",
@@ -32,11 +27,11 @@ function Header() {
     //   slug: "/all-posts",
     //   active: authStatus,
     // },
-    {
-      name: 'Add Post',
-      slug: "/add-post",
-      active: authStatus && role === "seller",
-    },
+    // {
+    //   name: 'Add Post',
+    //   slug: "/add-post",
+    //   active: authStatus && role === "seller",
+    // },
     {
       name: 'Contact us',
       slug: "/contactus",
@@ -47,10 +42,15 @@ function Header() {
       slug: "/aboutus",
       active: true,
     },
+    {
+      name: 'Sign In /SignUp',
+      slug: "/login",
+      active: !authStatus,
+    },
   ]
 
   return (
-    <header className='py-2 bg-green-500 text-white fixed top-0 left-0 w-full shadow-md z-50'>
+    <header className='py-2 bg-green-500 text-white sticky top-0 left-0 w-full shadow-md z-50'>    {/*we can use fixed at place of sticky */}
       <Container>
       <nav className='flex mt-0'>
           <div className='mr-4'>
@@ -74,7 +74,7 @@ function Header() {
               </li>
             ) : null
             )}
-            {authStatus && (
+            {authStatus && role === 'buyer' &&(
               <li className='ml-96'>
                 <LogoutBtn />
               </li>
