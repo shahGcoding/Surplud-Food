@@ -21,7 +21,8 @@ import SellerDashboard from "./pages/SellerDashboard"; // Create this page
 import Listings from './pages/seller/Listings.jsx';
 import Dashboard from './pages/seller/Dashboard.jsx';
 import Order from './pages/seller/Order.jsx';
-import Profile from './pages/seller/Profile.jsx'
+import Profile from './pages/seller/Profile.jsx';
+import Message from './pages/seller/Message.jsx';
 
 
 const router = createBrowserRouter([
@@ -123,7 +124,7 @@ const router = createBrowserRouter([
           { path: 'listings', element: <Listings /> },
           { path: 'order', element: <Order /> },
           { path: 'profile', element: <Profile /> },
-         // { path: 'messages', element: <Messages /> },
+          { path: 'message', element: <Message /> },
         ]
       },
 

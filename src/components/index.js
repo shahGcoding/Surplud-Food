@@ -22,6 +22,8 @@ import Filter from "./SearchBar/Filter";
 import ManageProfile from "./SellerDash/ManageProfile";
 import Dash from './SellerDash/Dash';
 import Order from "./SellerDash/Order";
+import Listings from "./SellerDash/Listings";
+import Message from "./SellerDash/Message";
 
 
 export {
@@ -49,9 +51,8 @@ export {
     ManageProfile,
     Dash,
     Order,
-
-
-
+    Listings,
+    Message
 
 
 }

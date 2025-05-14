@@ -6,24 +6,42 @@ import { useSelector } from "react-redux";
 const SellerLayout = () => {
   const authStatus = useSelector((state) => state.auth.status);
 
+  const navLinkStyle = ({ isActive }) =>
+    `flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+      isActive ? "bg-green-600 text-white" : "text-gray-700 hover:bg-green-100 hover:text-green-700"
+    }`;
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-300 text-black p-4 space-y-4">
-        <h2 className="text-xl font-bold mb-6">Seller Dashboard</h2>
-        <nav className="flex flex-col space-y-2">
-          <NavLink to="/seller/dashboard" className={({ isActive }) => isActive ? "text-blue-400" : "hover:text-blue-400"}>🏠 Dashboard</NavLink>
-          <NavLink to="/add-post" className={({ isActive }) => isActive ? "text-blue-400" : "hover:text-blue-400"}>🍱 My Listings</NavLink>
-          <NavLink to="/seller/listings" className={({ isActive }) => isActive ? "text-blue-400" : "hover:text-blue-400"}>➕ Add New Listing</NavLink>
-          <NavLink to="/seller/order" className={({ isActive }) => isActive ? "text-blue-400" : "hover:text-blue-400"}>🧾 Orders</NavLink>
-          <NavLink to="/seller/profile" className={({ isActive }) => isActive ? "text-blue-400" : "hover:text-blue-400"}>👤 Manage Profile</NavLink>
-          <NavLink to="/seller/messages" className={({ isActive }) => isActive ? "text-blue-400" : "hover:text-blue-400"}>💬 Messages</NavLink>
-          {authStatus && <LogoutBtn />}
+      <aside className="w-64 bg-green-50 border-r border-green-200 p-5 shadow-md">
+        <h2 className="text-2xl font-bold text-green-700 mb-8">Seller Panel</h2>
+        <nav className="flex flex-col gap-3">
+          <NavLink to="/seller/dashboard" className={navLinkStyle}>
+            🏠 <span className="ml-2">Dashboard</span>
+          </NavLink>
+          <NavLink to="/" className={navLinkStyle}>
+            🍱 <span className="ml-2">My Listings</span>
+          </NavLink>
+          <NavLink to="/seller/listings" className={navLinkStyle}>
+            ➕ <span className="ml-2">Add New Listing</span>
+          </NavLink>
+          <NavLink to="/seller/order" className={navLinkStyle}>
+            🧾 <span className="ml-2">Orders</span>
+          </NavLink>
+          <NavLink to="/seller/message" className={navLinkStyle}>
+            💬 <span className="ml-2">Messages</span>
+          </NavLink>
+          {authStatus && (
+            <div className="pt-4 mt-52 border-t border-green-200">
+              <LogoutBtn />
+            </div>
+          )}
         </nav>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 bg-gray-100 p-6 overflow-y-auto">
+      <main className="flex-1 bg-gray-50 p-6 overflow-y-auto">
         <Outlet />
       </main>
     </div>
