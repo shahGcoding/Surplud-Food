@@ -33,8 +33,10 @@ useEffect(() => {
     .then((userData) => {
       if (userData) {
         const userRole = userData.prefs?.role || "buyer"; // Default to buyer if role is missing
+        userData.role = userRole; // Set role in userData for consistency
         dispatch(login(userData));
         localStorage.setItem("role", userRole); // Store role in local storage
+        localStorage.setItem("userId", userData.$id);
 
         console.log("Fetched User Role:", userRole); // Debugging
 

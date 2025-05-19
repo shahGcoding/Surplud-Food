@@ -29,7 +29,7 @@ function RTE({ name, control, label, defaultValue = "" }) {
           <LexicalComposer initialConfig={initialConfig}>
             <div className="border border-gray-300 rounded-lg p-2 bg-white shadow-sm">
               {<div className=" py-2 text-gray-400">Type something...</div>}
-              <RichTextPlugin placeholder={"type"}
+              <RichTextPlugin
                 contentEditable={
                   <ContentEditable
                     className="min-h-[250px] w-full p-3 resize-y overflow-auto

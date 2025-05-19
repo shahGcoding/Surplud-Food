@@ -14,7 +14,7 @@ function Carousel() {
       ];
 
    return (
-    <div className="w-full  ">
+    <div className="w-full">
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={30}

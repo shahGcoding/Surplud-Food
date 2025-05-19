@@ -20,7 +20,7 @@ const SellerLayout = () => {
           <NavLink to="/seller/dashboard" className={navLinkStyle}>
             🏠 <span className="ml-2">Dashboard</span>
           </NavLink>
-          <NavLink to="/" className={navLinkStyle}>
+          <NavLink to="/seller/mylisting" className={navLinkStyle}>
             🍱 <span className="ml-2">My Listings</span>
           </NavLink>
           <NavLink to="/seller/listings" className={navLinkStyle}>

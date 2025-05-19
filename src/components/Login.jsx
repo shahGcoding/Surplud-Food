@@ -13,29 +13,63 @@ function Login() {
 
   const { register, handleSubmit } = useForm();
 
+// const login = async (data) => {
+//     setError("");
+//     try {
+//       const session = await authService.login(data);
+//       if (session) {
+//         const userData = await authService.getCurrentUser();
+//         console.log("userData from getCurrentUser():", userData);
+//         if (userData) {
+//           dispatch(authLogin(userData)); // Store user info in Redux
+//           localStorage.setItem("userId", userData.$id); // Store userId
+//           localStorage.setItem("role", userData.role); // Store role
+
+//           console.log("User ID after Login:", userData.$id);
+//           console.log("User Role after Login:", userData.role); // Debugging
+  
+//           setTimeout(() => {
+//             if (userData.role === "admin") navigate("/admin-dashboard");
+//             else if (userData.role === "seller") navigate("/seller-dashboard");
+//             else navigate("/");
+//           }, 500);
+//         }
+//       }
+//     } catch (error) {
+//       setError(error.message);
+//     }
+//   };
+
 const login = async (data) => {
-    setError("");
-    try {
-      const session = await authService.login(data);
-      if (session) {
-        const userData = await authService.getCurrentUser();
-        if (userData) {
-          dispatch(authLogin(userData)); // Store user info in Redux
-         localStorage.setItem("role", userData.role); // Store role for persistence
-  
-          console.log("User Role after Login:", userData.role); // Debugging
-  
-          setTimeout(() => {
-            if (userData.role === "admin") navigate("/admin-dashboard");
-            else if (userData.role === "seller") navigate("/seller");
-            else navigate("/");
-          }, 500);
-        }
+  setError("");
+  try {
+    const session = await authService.login(data);
+    if (session) {
+      const userData = await authService.getCurrentUser();
+      console.log("🧪 Appwrite Auth user:", userData);
+      if (userData) {
+        console.log("✅ userData:", userData);  // Check if $id is present
+        dispatch(authLogin(userData)); // Store user in Redux
+
+        // ✅ Store userId for later use
+        localStorage.setItem("userId", userData.$id);   // <--- This was missing!
+        localStorage.setItem("role", userData.role);    // Existing line
+
+        console.log("User ID saved to localStorage:", userData.$id);
+        console.log("User Role after Login:", userData.role);
+
+        setTimeout(() => {
+          if (userData.role === "admin") navigate("/admin-dashboard");
+          else if (userData.role === "seller") navigate("/seller");
+          else navigate("/");
+        }, 500);
       }
-    } catch (error) {
-      setError(error.message);
     }
-  };
+  } catch (error) {
+    setError(error.message);
+  }
+};
+
   
 
   return (

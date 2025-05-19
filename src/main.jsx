@@ -23,6 +23,7 @@ import Dashboard from './pages/seller/Dashboard.jsx';
 import Order from './pages/seller/Order.jsx';
 import Profile from './pages/seller/Profile.jsx';
 import Message from './pages/seller/Message.jsx';
+import MyListing from './pages/seller/MyListing.jsx'
 
 
 const router = createBrowserRouter([
@@ -121,6 +122,7 @@ const router = createBrowserRouter([
         element: <AuthLayout authentication><SellerDashboard /></AuthLayout>,
         children: [
           { path: 'dashboard', element: <Dashboard /> },
+          { path: 'mylisting', element: <MyListing /> },
           { path: 'listings', element: <Listings /> },
           { path: 'order', element: <Order /> },
           { path: 'profile', element: <Profile /> },

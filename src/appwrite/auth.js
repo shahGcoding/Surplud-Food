@@ -83,7 +83,8 @@ export class AuthService {
       const userData = await this.getUserData(user.$id);
 
       return {
-        userId: user.$id,
+        //userId: user.$id,
+        $id: user.$id,
         email: user.email,
         role: userData?.role || user.prefs?.role || "buyer",
         businessName: userData?.businessName || user.prefs?.businessName || "",

@@ -49,8 +49,8 @@ function PostForm({post}) {
 
 
         const dbPost = post
-            ? await appwriteService.updatePost(post.$id, { ...data, featuredImage: fileId, userId: userData?.userId })
-            : await appwriteService.createPost({ ...data, featuredImage: fileId, userId: userData?.userId });
+            ? await appwriteService.updatePost(post.$id, { ...data, featuredImage: fileId, userId: userData?.$id })
+            : await appwriteService.createPost({ ...data, featuredImage: fileId, userId: userData?.$id });
     
             if (dbPost) {
                 console.log("Post successfully saved:", dbPost);
@@ -138,3 +138,4 @@ function PostForm({post}) {
 }
 
 export default PostForm
+
