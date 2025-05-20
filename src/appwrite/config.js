@@ -169,6 +169,42 @@ export class Service {
     }
   }
 
+ async updateUserData(documentId, updatedData) {
+  try {
+    return await this.databases.updateDocument(
+      conf.appwriteDatabaseId,
+      conf.appwriteUserCollectionId,
+      documentId,
+      updatedData
+    );
+  } catch (error) {
+    console.error("Error updating user data:", error);
+    throw error;
+  }
+}
+
+
+async getUserDocumentByUserId(userId) {
+  try {
+    const result = await this.databases.listDocuments(
+      conf.appwriteDatabaseId,
+      conf.appwriteUserCollectionId,
+      [Query.equal("userId", userId)]
+    );
+
+    if (result.total > 0) {
+      return result.documents[0]; // First matching document
+    } else {
+      throw new Error("User document not found.");
+    }
+  } catch (error) {
+    console.error("Error fetching user document:", error);
+    throw error;
+  }
+}
+
+
+
   //file upload method
 
   async uploadFile(file) {

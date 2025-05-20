@@ -60,7 +60,7 @@ const login = async (data) => {
 
         setTimeout(() => {
           if (userData.role === "admin") navigate("/admin-dashboard");
-          else if (userData.role === "seller") navigate("/seller");
+          else if (userData.role === "seller") navigate("/seller/dashboard");
           else navigate("/");
         }, 500);
       }
