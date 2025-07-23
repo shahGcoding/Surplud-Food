@@ -14,7 +14,7 @@ export class Service {
     this.bucket = new Storage(this.client);
   }
 
-  async createPost({ title, slug, content, featuredImage, status, userId }) {
+  async createPost({ title, slug, content, featuredImage, status, price, quantity, userId }) {
     try {
       return await this.databases.createDocument(
         conf.appwriteDatabaseId,
@@ -25,6 +25,8 @@ export class Service {
           content,
           featuredImage,
           status,
+          price,
+          quantity,
           userId,
         }
       );
@@ -32,6 +34,42 @@ export class Service {
       throw error;
     }
   }
+
+  async postOrder({ sellerId, buyerName, foodTitle, quantity, totalPrice, status, orderDate}){
+    try {
+
+      return await this.databases.createDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteOrderCollectionId,
+        ID.unique(), // Use unique ID for each order
+        {
+          sellerId,
+          buyerName,
+          foodTitle,
+          quantity,
+          totalPrice,
+          status,
+          orderDate
+        }
+      );
+      
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getOrdersByBuyer(buyerName) {
+    try {
+        return await this.databases.listDocuments(
+            conf.appwriteDatabaseId,
+            conf.appwriteOrderCollectionId,
+            [Query.equal("buyerName", buyerName)]
+        );
+    } catch (error) {
+        throw error;
+    }
+}
+
 
   async updatePost(slug, { title, content, featuredImage, status }) {
     try {
@@ -169,6 +207,15 @@ export class Service {
     }
   }
 
+ async getOrdersBySeller(sellerId) {
+    return this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteOrderCollectionId,
+        [Query.equal("sellerId", sellerId)]
+    ).then(res => res.documents);
+}
+
+
  async updateUserData(documentId, updatedData) {
   try {
     return await this.databases.updateDocument(
@@ -202,6 +249,16 @@ async getUserDocumentByUserId(userId) {
     throw error;
   }
 }
+
+// In appwrite/config.js or wherever your appwriteService is
+async getUserById(userId) {
+  return this.databases.listDocuments(
+    conf.appwriteDatabaseId,
+    conf.appwriteUserCollectionId,
+    [Query.equal("userId", userId)]
+  ).then(res => res.documents[0]);
+}
+
 
 
 

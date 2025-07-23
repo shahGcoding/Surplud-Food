@@ -23,7 +23,8 @@ import Dashboard from './pages/seller/Dashboard.jsx';
 import Order from './pages/seller/Order.jsx';
 import Profile from './pages/seller/Profile.jsx';
 import Message from './pages/seller/Message.jsx';
-import MyListing from './pages/seller/MyListing.jsx'
+import MyListing from './pages/seller/MyListing.jsx';
+import Orders from './components/Buyer/Orders.jsx'; // Import Orders component
 
 
 const router = createBrowserRouter([
@@ -48,6 +49,14 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={false}>
             <Signup />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: '/buyer/orders',
+        element: (
+          <AuthLayout authentication>
+            <Orders />
           </AuthLayout>
         ),
       },

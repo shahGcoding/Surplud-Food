@@ -52,7 +52,7 @@ useEffect(() => {
 }, [navigate]);
 
  return !loading ? (
-  <div className='min-h-screen flex flex-wrap content-between bg-gray-500'>
+  <div className='min-h-screen flex flex-wrap content-between bg-gray-100'>
     <div className='w-full block'>
       <Header />
       <main className='bg-gray-100'>

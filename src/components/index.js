@@ -24,6 +24,7 @@ import Dash from './SellerDash/Dash';
 import Order from "./SellerDash/Order";
 import Listings from "./SellerDash/Listings";
 import Message from "./SellerDash/Message";
+import Orders from "./Buyer/Orders";
 
 
 export {
@@ -52,7 +53,8 @@ export {
     Dash,
     Order,
     Listings,
-    Message
+    Message,
+    Orders,
 
 
 }

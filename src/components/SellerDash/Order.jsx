@@ -1,134 +1,57 @@
 import React, { useEffect, useState } from "react";
-//import { service } from "@/appwrite/config"; // adjust the import path as needed
-import { FaCheck, FaTimes, FaEdit } from "react-icons/fa";
+import appwriteService from "../../appwrite/config";
+import { useSelector } from "react-redux";
+import { Container } from "../../components";
 
-const Order = () => {
-  const [orders, setOrders] = useState([]);
-  const [updatingStatusId, setUpdatingStatusId] = useState(null);
-  const [newStatus, setNewStatus] = useState("");
+export default function PlaceOrder() {
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const userData = useSelector((state) => state.auth.userData);
 
-//   useEffect(() => {
-//     fetchOrders();
-//   }, []);
+    useEffect(() => {
+        if (userData?.userId) {
+            appwriteService.getOrdersBySeller(userData.userId).then((res) => {
+                setOrders(res);
+                setLoading(false);
+            });
+        }
+    }, [userData]);
 
-//   const fetchOrders = async () => {
-//     try {
-//       const allOrders = await service.getOrders(); // Fetch all orders
-//       setOrders(allOrders.documents || []);
-//     } catch (error) {
-//       console.error("Failed to fetch orders:", error);
-//     }
-//   };
 
-//   const handleAccept = async (orderId) => {
-//     await updateOrderStatus(orderId, "Accepted");
-//   };
-
-//   const handleReject = async (orderId) => {
-//     await updateOrderStatus(orderId, "Rejected");
-//   };
-
-//   const updateOrderStatus = async (orderId, status) => {
-//     try {
-//       await service.updateOrder(orderId, { status });
-//       fetchOrders();
-//     } catch (error) {
-//       console.error("Failed to update order:", error);
-//     }
-//   };
-
-//   const handleStatusChange = async (e) => {
-//     e.preventDefault();
-//     await updateOrderStatus(updatingStatusId, newStatus);
-//     setUpdatingStatusId(null);
-//     setNewStatus("");
-//   };
-
-  return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">📦 Manage Orders</h2>
-      <div className="overflow-x-auto bg-white shadow rounded-lg">
-        <table className="w-full table-auto border-collapse">
-          <thead className="bg-gray-200 text-gray-700">
-            <tr>
-              <th className="px-4 py-2 text-left">#</th>
-              <th className="px-4 py-2 text-left">Customer</th>
-              <th className="px-4 py-2 text-left">Food Item</th>
-              <th className="px-4 py-2 text-left">Quantity</th>
-              <th className="px-4 py-2 text-left">Status</th>
-              <th className="px-4 py-2 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+    return (
+        <Container>
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Placed Orders</h1>
             {orders.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="text-center py-4 text-gray-500">
-                  No orders found.
-                </td>
-              </tr>
+                <div className="text-center text-gray-500">No orders found.</div>
             ) : (
-              orders.map((order, index) => (
-                <tr key={order.$id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2">{index + 1}</td>
-                  <td className="px-4 py-2">{order.customerName}</td>
-                  <td className="px-4 py-2">{order.foodItem}</td>
-                  <td className="px-4 py-2">{order.quantity}</td>
-                  <td className="px-4 py-2 font-medium text-blue-600">
-                    {order.status}
-                  </td>
-                  <td className="px-4 py-2 space-x-2">
-                    <button
-                      className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md flex items-center gap-1"
-                      onClick={() => handleAccept(order.$id)}
-                    >
-                      <FaCheck /> Accept
-                    </button>
-                    <button
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center gap-1"
-                      onClick={() => handleReject(order.$id)}
-                    >
-                      <FaTimes /> Reject
-                    </button>
-                    <button
-                      className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-md flex items-center gap-1"
-                      onClick={() => {
-                        setUpdatingStatusId(order.$id);
-                        setNewStatus(order.status);
-                      }}
-                    >
-                      <FaEdit /> Update
-                    </button>
-                  </td>
-                </tr>
-              ))
+                <div className="grid gap-6">
+                    {orders.map((order) => (
+                        <div
+                            key={order.$id}
+                            className="border rounded-lg p-4 shadow-sm bg-white"
+                        >
+                            <div className="flex justify-between items-center mb-3">
+                                <h2 className="text-xl font-semibold">{order.postTitle}</h2>
+                                <span className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded">
+                                    Quantity: {order.quantity}
+                                </span>
+                            </div>
+                            <div className="text-gray-600 mb-2">
+                                <span className="font-medium">Total:</span> Rs. {order.total}
+                            </div>
+                            <div className="text-gray-600 mb-2">
+                                <span className="font-medium">Buyer:</span> {order.buyerName}
+                            </div>
+                            <div className="text-gray-600 mb-2">
+                                <span className="font-medium">Contact:</span> {order.buyerPhone}
+                            </div>
+                            <div className="text-gray-600">
+                                <span className="font-medium">Status:</span> {order.status || "Pending"}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             )}
-          </tbody>
-        </table>
-      </div>
-
-      {updatingStatusId && (
-        <form
-          onSubmit={handleStatusChange}
-          className="mt-6 p-4 bg-white rounded shadow-md max-w-md"
-        >
-          <h3 className="text-lg font-semibold mb-3">Update Order Status</h3>
-          <input
-            type="text"
-            value={newStatus}
-            onChange={(e) => setNewStatus(e.target.value)}
-            placeholder="Enter new status"
-            className="w-full p-2 border border-gray-300 rounded-md mb-4"
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Update Status
-          </button>
-        </form>
-      )}
-    </div>
-  );
-};
-
-export default Order;
+        </Container>
+    );
+}

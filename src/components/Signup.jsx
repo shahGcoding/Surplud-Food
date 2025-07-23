@@ -132,7 +132,7 @@ function Signup() {
               onChange={(e) => setRole(e.target.value)}
             />
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full bg-green-700 hover:cursor-pointer hover:bg-green-500 text-white">
               Create Account
             </Button>
           </div>

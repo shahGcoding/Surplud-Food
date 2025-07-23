@@ -11,6 +11,7 @@ function Header() {
 
   const navItems = [
     { name: 'Home', slug: '/', active: true },
+    { name: 'Orders', slug: '/buyer/orders', active: authStatus && role === 'buyer' },
     { name: 'Contact us', slug: '/contactus', active: true },
     { name: 'About us', slug: '/aboutus', active: true },
     { name: 'Sign In /SignUp', slug: '/login', active: !authStatus },
