@@ -35,7 +35,7 @@ function MyListing() {
       try {
         const response = await appwriteService.getPosts([]);
         if (response?.documents) {
-          console.log("📦 All fetched posts:", response.documents);
+          console.log("All fetched posts:", response.documents);
 
           const userPosts = response.documents.filter((post) => {
             console.log(
@@ -44,11 +44,11 @@ function MyListing() {
             return post.userId === userId;
           });
 
-          console.log("🎯 Filtered userPosts:", userPosts);
+          console.log("Filtered userPosts:", userPosts);
           setPosts(userPosts);
         }
       } catch (error) {
-        console.error("❌ Error fetching posts:", error);
+        console.error("Error fetching posts:", error);
       }
     };
 

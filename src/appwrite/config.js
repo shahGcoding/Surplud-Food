@@ -35,7 +35,7 @@ export class Service {
     }
   }
 
-  async postOrder({ sellerId, buyerName, foodTitle, quantity, totalPrice, status, orderDate}){
+  async postOrder({ sellerId, sellerName, buyerName, buyerId, foodTitle, quantity, totalPrice, status, orderDate}){
     try {
 
       return await this.databases.createDocument(
@@ -45,17 +45,76 @@ export class Service {
         {
           sellerId,
           buyerName,
+          buyerId,
           foodTitle,
           quantity,
           totalPrice,
           status,
-          orderDate
+          orderDate,
+          sellerName,
         }
       );
       
     } catch (error) {
       throw error;
     }
+  }
+
+  async getOrdersBySellerId(sellerId) {
+    try {
+      return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteOrderCollectionId,
+        [
+          Query.equal("sellerId", sellerId),
+           Query.orderDesc("$createdAt")
+        ]
+      );
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  async updateOrderStatus(orderId, newStatus) {
+    try {
+      return await this.databases.updateDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteOrderCollectionId,
+        orderId,
+        { status: newStatus }
+
+      );
+      
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      throw error;
+      
+    }
+
+  //   const DB_ID = conf.appwriteDatabaseId;
+  //   const ORDER_COLLECTION_ID = conf.appwriteOrderCollectionId;
+
+  //   try {
+      
+  //   // Step 1: Get the current order
+  //   const order = await this.databases.getDocument(DB_ID, ORDER_COLLECTION_ID, orderId);
+
+  //   // Step 2: Update the status with all required fields preserved
+  //   const updatedOrder = await this.databases.updateDocument(DB_ID, ORDER_COLLECTION_ID, orderId, {
+  //     buyerId: order.buyerId,
+  //     sellerId: order.sellerId,
+  //     postId: order.postId,
+  //     quantity: order.quantity,
+  //     price: order.price,
+  //     status: newStatus,
+  //   });
+
+  //   return updatedOrder;
+  // } catch (error) {
+  //   console.error("❌ Error updating order status:", error);
+  //   throw error;
+  // }
   }
 
   async getOrdersByBuyer(buyerName) {
@@ -128,6 +187,36 @@ export class Service {
       return false;
     }
   }
+
+ async getPostsByUser(userId) {
+  try {
+    const res = await this.databases.listDocuments(
+      conf.appwriteDatabaseId,
+      conf.appwriteCollectionId,
+      [Query.equal("userId", userId)]
+    );
+    return res;
+  } catch (error) {
+    console.log("Appwrite service :: getPostsByUser :: error", error);
+    return { documents: [] }; // Return empty array instead of false
+  }
+}
+
+
+  async getListingsBySeller(sellerId) {
+    try {
+      return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteCollectionId,
+        [Query.equal("userId", sellerId)]
+      )
+    } catch (error) {
+      console.error("Error fetching listings by seller:", error);
+      throw error;
+    }
+  }
+
+    
 
   //save user data
 
@@ -207,12 +296,26 @@ export class Service {
     }
   }
 
- async getOrdersBySeller(sellerId) {
-    return this.databases.listDocuments(
-        conf.appwriteDatabaseId,
-        conf.appwriteOrderCollectionId,
-        [Query.equal("sellerId", sellerId)]
-    ).then(res => res.documents);
+//  async getOrdersBySeller(sellerId) {
+//     return this.databases.listDocuments(
+//         conf.appwriteDatabaseId,
+//         conf.appwriteOrderCollectionId,
+//         [Query.equal("sellerId", sellerId)]
+//     ).then(res => res.documents);
+// }
+
+async getOrdersBySeller(sellerId) {
+  try {
+    const res = await this.databases.listDocuments(
+      conf.appwriteDatabaseId,
+      conf.appwriteOrderCollectionId,
+      [Query.equal("sellerId", sellerId)]
+    );
+    return res.documents;
+  } catch (error) {
+    console.log("Appwrite service :: getOrdersBySeller :: error", error);
+    return [];
+  }
 }
 
 

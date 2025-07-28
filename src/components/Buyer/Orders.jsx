@@ -25,6 +25,18 @@ export default function Order() {
         }
     };
 
+     const getStatusColor = (status) => {
+        switch (status) {
+            case "Accepted":
+                return "text-green-600";
+            case "Rejected":
+                return "text-red-600";
+            case "Pending":
+            default:
+                return "text-yellow-600";
+        }
+    };
+
     return (
         <Container>
             <h2 className="text-2xl font-bold mb-4">My Orders</h2>
@@ -34,7 +46,7 @@ export default function Order() {
                 <p>No orders found.</p>
             ) : (
                 <div className="space-y-4 mb-4">
-                    {orders.map((order) => (
+                    {orders.slice().reverse().map((order) => (
                         <div
                             key={order.$id}
                             className="border p-4 rounded-md shadow-sm bg-white"
@@ -43,9 +55,17 @@ export default function Order() {
                             <p>Quantity: {order.quantity}</p>
                             <p>Total Price: Rs. {order.totalPrice}</p>
                             <p>Order Date: {order.orderDate}</p>
-                            <p>Seller ID: {order.sellerId}</p>
-                            <p className="text-blue-600">Status: {order.status}</p>
+                            <p>Seller Name: {order.sellerId}</p>
+                            <p>
+                                Status:{" "}
+                                <span className={`font-bold ${getStatusColor(order.status)}`}>
+                                    {order.status}
+                                </span>
+                            </p>
                         </div>
+
+                        
+
                     ))}
                 </div>
             )}

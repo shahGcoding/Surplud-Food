@@ -1,57 +1,76 @@
 import React, { useEffect, useState } from "react";
 import appwriteService from "../../appwrite/config";
 import { useSelector } from "react-redux";
-import { Container } from "../../components";
 
 export default function PlaceOrder() {
     const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
     const userData = useSelector((state) => state.auth.userData);
 
     useEffect(() => {
-        if (userData?.userId) {
-            appwriteService.getOrdersBySeller(userData.userId).then((res) => {
-                setOrders(res);
-                setLoading(false);
-            });
-        }
+             
+            const fetchOrders = async () => {
+                try {
+                    const response = await appwriteService.getOrdersBySellerId(userData.$id); // Assuming you have a method to fetch orders by seller ID
+                    setOrders(response.documents || []);
+                } catch (error) {
+                    console.error("Error fetching seller orders:", error);
+                }
+            }
+            if(userData && userData.$id) {
+                fetchOrders();
+            }
     }, [userData]);
 
+    const handleOrderStatus = async (orderId, newStatus) => {
+        try {
+            await appwriteService.updateOrderStatus(orderId, newStatus);
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order.$id === orderId ? { ...order, status: newStatus } : order
+                )
+            );
+        } catch (error) {
+            console.error("Error updating order status:", error);
+            alert("Failed to update order status. Please try again.");
+        }
+    }
+
+
+    if (orders.length === 0) {
+        return <p className="text-center text-gray-600">No orders found.</p>;
+    }
 
     return (
-        <Container>
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Placed Orders</h1>
-            {orders.length === 0 ? (
-                <div className="text-center text-gray-500">No orders found.</div>
-            ) : (
-                <div className="grid gap-6">
-                    {orders.map((order) => (
-                        <div
-                            key={order.$id}
-                            className="border rounded-lg p-4 shadow-sm bg-white"
-                        >
-                            <div className="flex justify-between items-center mb-3">
-                                <h2 className="text-xl font-semibold">{order.postTitle}</h2>
-                                <span className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded">
-                                    Quantity: {order.quantity}
-                                </span>
-                            </div>
-                            <div className="text-gray-600 mb-2">
-                                <span className="font-medium">Total:</span> Rs. {order.total}
-                            </div>
-                            <div className="text-gray-600 mb-2">
-                                <span className="font-medium">Buyer:</span> {order.buyerName}
-                            </div>
-                            <div className="text-gray-600 mb-2">
-                                <span className="font-medium">Contact:</span> {order.buyerPhone}
-                            </div>
-                            <div className="text-gray-600">
-                                <span className="font-medium">Status:</span> {order.status || "Pending"}
-                            </div>
+        <div className="p-6 space-y-4">
+            <h1 className="text-2xl font-bold mb-4">Incoming Orders</h1>
+            {orders.map((order) => (
+                <div key={order.$id} className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+                    <div>
+                        <p className="font-semibold">Food: {order.foodTitle}</p>
+                        <p>Quantity: {order.quantity} Kg</p>
+                        <p>Total Price: Rs. {order.totalPrice}</p>
+                        <p>Buyer: {order.buyerName}</p>
+                        <p>Status: <span className={`font-bold ${order.status === "Pending" ? "text-yellow-600" : order.status === "Accepted" ? "text-green-600" : "text-red-600"}`}>{order.status}</span></p>
+                    </div>
+
+                    {order.status === "Pending" && (
+                        <div className="flex gap-2">
+                            <button
+                                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                                onClick={() => handleOrderStatus(order.$id, "Accepted")}
+                            >
+                                Accept
+                            </button>
+                            <button
+                                className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                                onClick={() => handleOrderStatus(order.$id, "Rejected")}
+                            >
+                                Reject
+                            </button>
                         </div>
-                    ))}
+                    )}
                 </div>
-            )}
-        </Container>
+            ))}
+        </div>
     );
 }
