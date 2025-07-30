@@ -1,4 +1,3 @@
-// auth.js
 import conf from "../conf/conf.js";
 import config from "./config.js";
 import { Client, Account, ID, Databases, Query } from "appwrite";

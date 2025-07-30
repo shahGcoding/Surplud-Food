@@ -60,6 +60,59 @@ export class Service {
     }
   }
 
+  async postMessage({ sellerId, buyerId, buyerName, orderId, message, dateSent, status}) {
+
+    try {
+      return await this.databases.createDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteMessagesCollectionId,
+        ID.unique(), // Use unique ID for each message
+        {
+          sellerId,
+          buyerId,
+          buyerName,
+          orderId,
+          message,
+          dateSent,
+          status,
+        }
+      )
+    } catch (error) {
+      console.error("Error posting message:", error);
+      throw error;
+    }
+  }
+
+  async messageFromBuyer(sellerId) {
+    try {
+      return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteMessagesCollectionId,
+        [
+          Query.equal("sellerId", sellerId),
+          Query.orderDesc("$createdAt") // Assuming you want the latest messages first
+        ]
+      )
+    } catch (error) {
+      console.error("Error fetching messages from buyer:", error);
+      throw error;
+    }
+  }
+
+  async markMessageAsRead(messageId) {
+    try {
+      return await this.databases.updateDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteMessagesCollectionId,
+        messageId,
+        { status: "Read" } // Assuming you want to update the status to "Read"  
+      )
+    } catch (error) {
+      console.error("Error marking message as read:", error);
+      throw error;
+    }
+  }
+
   async getOrdersBySellerId(sellerId) {
     try {
       return await this.databases.listDocuments(
@@ -202,6 +255,20 @@ export class Service {
   }
 }
 
+async getOrdersBySeller(sellerId) {
+  try {
+    const res = await this.databases.listDocuments(
+      conf.appwriteDatabaseId,
+      conf.appwriteOrderCollectionId,
+      [Query.equal("sellerId", sellerId)]
+    );
+    return res.documents;
+  } catch (error) {
+    console.log("Appwrite service :: getOrdersBySeller :: error", error);
+    return [];
+  }
+}
+
 
   async getListingsBySeller(sellerId) {
     try {
@@ -303,20 +370,6 @@ export class Service {
 //         [Query.equal("sellerId", sellerId)]
 //     ).then(res => res.documents);
 // }
-
-async getOrdersBySeller(sellerId) {
-  try {
-    const res = await this.databases.listDocuments(
-      conf.appwriteDatabaseId,
-      conf.appwriteOrderCollectionId,
-      [Query.equal("sellerId", sellerId)]
-    );
-    return res.documents;
-  } catch (error) {
-    console.log("Appwrite service :: getOrdersBySeller :: error", error);
-    return [];
-  }
-}
 
 
  async updateUserData(documentId, updatedData) {

@@ -4,7 +4,7 @@ import { login as authLogin } from "../store/authSlice";
 import { Button, Input, Logo, Select } from "./index";
 import { useDispatch } from "react-redux";
 import authService from "../appwrite/auth";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 
 function Login() {
   const [error, setError] = useState("");
@@ -13,53 +13,25 @@ function Login() {
 
   const { register, handleSubmit } = useForm();
 
-// const login = async (data) => {
-//     setError("");
-//     try {
-//       const session = await authService.login(data);
-//       if (session) {
-//         const userData = await authService.getCurrentUser();
-//         console.log("userData from getCurrentUser():", userData);
-//         if (userData) {
-//           dispatch(authLogin(userData)); // Store user info in Redux
-//           localStorage.setItem("userId", userData.$id); // Store userId
-//           localStorage.setItem("role", userData.role); // Store role
-
-//           console.log("User ID after Login:", userData.$id);
-//           console.log("User Role after Login:", userData.role); // Debugging
-  
-//           setTimeout(() => {
-//             if (userData.role === "admin") navigate("/admin-dashboard");
-//             else if (userData.role === "seller") navigate("/seller-dashboard");
-//             else navigate("/");
-//           }, 500);
-//         }
-//       }
-//     } catch (error) {
-//       setError(error.message);
-//     }
-//   };
-
 const login = async (data) => {
   setError("");
   try {
     const session = await authService.login(data);
     if (session) {
       const userData = await authService.getCurrentUser();
-      console.log("🧪 Appwrite Auth user:", userData);
       if (userData) {
-        console.log("✅ userData:", userData);  // Check if $id is present
+        if (userData.role !== data.role) {
+          await authService.logout();
+          setError(`you can't login as ${data.role}. Your actual role is ${userData.role}`);
+          return;
+        }
         dispatch(authLogin(userData)); // Store user in Redux
 
-        // ✅ Store userId for later use
-        localStorage.setItem("userId", userData.$id);   // <--- This was missing!
-        localStorage.setItem("role", userData.role);    // Existing line
-
-        console.log("User ID saved to localStorage:", userData.$id);
-        console.log("User Role after Login:", userData.role);
+        localStorage.setItem("userId", userData.$id);   
+        localStorage.setItem("role", userData.role);   
 
         setTimeout(() => {
-          if (userData.role === "admin") navigate("/admin-dashboard");
+          if (userData.role === "admin") navigate("/admin/dashboard");
           else if (userData.role === "seller") navigate("/seller/dashboard");
           else navigate("/");
         }, 500);
@@ -128,9 +100,8 @@ const login = async (data) => {
             </Link>
 
             <Select
-              options={["buyer", "seller"]}
+              options={["buyer", "seller", "admin"]}
               label="Role"
-              placeholder="Select role"
               className="mb-4"
               {...register("role", { required: true })}
               

@@ -1,10 +1,46 @@
-import React from "react";
+import React,{useState, useEffect} from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import { LogoutBtn } from '../index';
 import { useSelector } from "react-redux";
+import appwriteService from "../../appwrite/config";
 
 const SellerLayout = () => {
   const authStatus = useSelector((state) => state.auth.status);
+
+  const userData = useSelector((state) => state.auth.userData);
+  const sellerId = userData?.$id;
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+
+    const fetchMessages = async () => {
+      
+      try {
+
+        if (!sellerId) return;
+
+        const response = await appwriteService.messageFromBuyer(sellerId);
+        // const allMessages = response.documents || [];
+        const unreadMessages = response.documents.filter((msg) => msg.status === "Unread").length;
+
+        console.log("Unread messages count:", unreadMessages);
+
+      setUnreadCount(unreadMessages);
+
+      } catch (error) {
+        console.error("Error fetching unread messages:", error);
+      }
+    };
+
+    if (sellerId) {
+      fetchMessages();
+      const interval = setInterval(fetchMessages, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [sellerId]);
+
+
 
   const navLinkStyle = ({ isActive }) =>
     `flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -29,8 +65,13 @@ const SellerLayout = () => {
           <NavLink to="/seller/order" className={navLinkStyle}>
             🧾 <span className="ml-2">Orders</span>
           </NavLink>
-          <NavLink to="/seller/message" className={navLinkStyle}>
+          <NavLink to="/seller/message" className={`${navLinkStyle} relative`}>
             💬 <span className="ml-2">Messages</span>
+            {unreadCount > 0 && (
+              <span className="absolute t-0 left-40 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {unreadCount}
+              </span>
+            )}
           </NavLink>
           {authStatus && (
             <div className="pt-4 mt-52 border-t border-green-200">
