@@ -1,5 +1,4 @@
-import React from 'react'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {useDispatch} from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import './App.css'
@@ -14,31 +13,16 @@ function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-//  useEffect(() => {
-//   authService.getCurrentUser()
-//   .then((userData) => {
-//     if(userData){
-//       dispatch(login(userData))
-//     }
-//     else{
-//       dispatch(logout())
-//     }
-//   })
-//   .finally(() => setLoading(false))
-//  }, [])
-
 useEffect(() => {
   authService
     .getCurrentUser()
     .then((userData) => {
       if (userData) {
-        const userRole = userData.prefs?.role || "buyer"; // Default to buyer if role is missing
+        const userRole = userData.prefs?.role || "buyer"; // Default to "buyer" if role is not set
         userData.role = userRole; // Set role in userData for consistency
         dispatch(login(userData));
         localStorage.setItem("role", userRole); // Store role in local storage
         localStorage.setItem("userId", userData.$id);
-
-        console.log("Fetched User Role:", userRole); // Debugging
 
         // Redirect based on role
         if (userData.prefs?.role === "admin") navigate("/admin-dashboard");

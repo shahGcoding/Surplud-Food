@@ -25,7 +25,7 @@ import Order from "./SellerDash/Order";
 import Listings from "./SellerDash/Listings";
 import Message from "./SellerDash/Message";
 import Orders from "./Buyer/Orders";
-
+import Testimonial from "./Testimonial";
 
 export {
     Header,
@@ -55,6 +55,7 @@ export {
     Listings,
     Message,
     Orders,
+    Testimonial
 
 
 }

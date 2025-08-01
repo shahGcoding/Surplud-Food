@@ -4,7 +4,7 @@ import { login as authLogin } from "../store/authSlice";
 import { Button, Input, Logo, Select } from "./index";
 import { useDispatch } from "react-redux";
 import authService from "../appwrite/auth";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 function Login() {
   const [error, setError] = useState("");
@@ -20,11 +20,7 @@ const login = async (data) => {
     if (session) {
       const userData = await authService.getCurrentUser();
       if (userData) {
-        if (userData.role !== data.role) {
-          await authService.logout();
-          setError(`you can't login as ${data.role}. Your actual role is ${userData.role}`);
-          return;
-        }
+
         dispatch(authLogin(userData)); // Store user in Redux
 
         localStorage.setItem("userId", userData.$id);   
@@ -98,14 +94,6 @@ const login = async (data) => {
             <Link>
             <p className="text-blue-400 m-3">forget password?</p>
             </Link>
-
-            <Select
-              options={["buyer", "seller", "admin"]}
-              label="Role"
-              className="mb-4"
-              {...register("role", { required: true })}
-              
-            />
 
             <Button type="submit" className="w-full bg-green-700 hover:cursor-pointer hover:bg-green-500 text-white">
               Sign in

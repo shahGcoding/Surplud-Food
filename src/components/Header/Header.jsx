@@ -19,7 +19,7 @@ function Header() {
   ];
 
   return (
-    <header className='py-2 bg-green-500 text-white sticky top-0 left-0 w-full shadow-md z-50'>
+    <header className='py-2 bg-green-500/75 text-white sticky top-0 left-0 w-full backdrop-blur-md shadow-sm transition-colors duration-300 z-50'>
       <Container>
         <nav className='flex items-center justify-between'>
           {/* Left: Logo */}

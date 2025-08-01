@@ -415,7 +415,18 @@ async getUserById(userId) {
   ).then(res => res.documents[0]);
 }
 
-
+async getFilteredPosts(queries) {
+  try {
+    return await this.databases.listDocuments(
+      conf.appwriteDatabaseId,
+      conf.appwriteCollectionId,
+      queries
+    );
+  } catch (error) {
+    console.error("Error fetching filtered posts:", error);
+    throw error;
+  }
+}
 
 
   //file upload method
