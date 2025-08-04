@@ -27,7 +27,7 @@ const login = async (data) => {
         localStorage.setItem("role", userData.role);   
 
         setTimeout(() => {
-          if (userData.role === "admin") navigate("/admin/dashboard");
+          if (userData.role === "admin") navigate("/admin/maindashboard");
           else if (userData.role === "seller") navigate("/seller/dashboard");
           else navigate("/");
         }, 500);

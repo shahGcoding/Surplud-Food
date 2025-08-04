@@ -1,11 +1,11 @@
 import React from 'react'
-import { AdminDash } from '../components'
+import { AdminLayout, Container } from '../../components'
 
 function AdminDashboard() {
   return (
-    <div className='p-8'>
-    <AdminDash />
-    </div>
+    
+    <AdminLayout />
+    
   )
 }
 

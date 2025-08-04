@@ -1,13 +1,34 @@
 import React, { useEffect, useState } from "react";
-import {BsFillBoxSeamFill,BsClipboardCheck,BsPeopleFill,BsCheckCircle} from "react-icons/bs";
-import {BarChart,Bar,XAxis,YAxis,CartesianGrid,Tooltip,Legend,ResponsiveContainer,LineChart,Line} from 'recharts';
+import {
+  BsFillBoxSeamFill,
+  BsClipboardCheck,
+  BsPeopleFill,
+  BsCheckCircle,
+} from "react-icons/bs";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
 import appwriteService from "../../appwrite/config";
 import { useSelector } from "react-redux";
+import authService from "../../appwrite/auth";
 
 const Dash = () => {
   const { userData } = useSelector((state) => state.auth);
   const sellerId = userData?.$id;
-  
+
+
+  const [userDoc, setUserDoc] = useState("active")
+  const [isLoadingUser, setIsLoadingUser] = useState(true)
+
   const [listings, setListings] = useState(0);
   const [pendingOrders, setPendingOrders] = useState(0);
   const [completedOrders, setCompletedOrders] = useState(0);
@@ -22,6 +43,20 @@ const Dash = () => {
     { name: "Sat", completed: 10, pending: 1 },
     { name: "Sun", completed: 6, pending: 3 },
   ];
+
+   const fetchUSerDoc = async () => {
+  try {
+      const session = await authService.getCurrentUser();
+      const doc = await appwriteService.getUserById(session.$id);
+      setUserDoc(doc);
+
+  } catch (error) {
+      throw error
+    } finally{
+        setIsLoadingUser(false)
+    }
+
+ };
 
   const fetchDashboardData = async () => {
     if (!sellerId) return;
@@ -47,24 +82,63 @@ const Dash = () => {
     }
   };
 
+  // useEffect(() => {
+  //   fetchUSerDoc();
+  // }, [])
+
   useEffect(() => {
+    fetchUSerDoc();
     fetchDashboardData();
   }, [sellerId]);
 
+  if(isLoadingUser)
+  {
+    return <div className="p-6 text-gray-600">Loading dashboard...</div>;
+  }
+
   return (
     <main className="p-6 space-y-8 bg-gray-50 min-h-screen">
-      <div className="text-3xl font-bold text-gray-800">📊 Dashboard</div>
+      <div className="text-3xl font-bold text-gray-800"> Dashboard</div>
+
+       {
+       userDoc.status !== "active" && (
+        <div className="bg-red-100 text-red-700 p-2 rounded">
+          Your account is currently blocked. Limited access.
+        </div>
+      )} 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard icon={<BsFillBoxSeamFill size={26} />} label="Listings" value={listings} color="text-blue-600" />
-        <StatsCard icon={<BsClipboardCheck size={26} />} label="Pending Orders" value={pendingOrders} color="text-yellow-500" />
-        <StatsCard icon={<BsCheckCircle size={26} />} label="Completed Orders" value={completedOrders} color="text-green-600" />
-        <StatsCard icon={<BsPeopleFill size={26} />} label="Buyers" value={buyers} color="text-purple-600" />
+        <StatsCard
+          icon={<BsFillBoxSeamFill size={26} />}
+          label="Listings"
+          value={listings}
+          color="text-blue-600"
+        />
+        <StatsCard
+          icon={<BsClipboardCheck size={26} />}
+          label="Pending Orders"
+          value={pendingOrders}
+          color="text-yellow-500"
+        />
+        <StatsCard
+          icon={<BsCheckCircle size={26} />}
+          label="Completed Orders"
+          value={completedOrders}
+          color="text-green-600"
+        />
+        <StatsCard
+          icon={<BsPeopleFill size={26} />}
+          label="Buyers"
+          value={buyers}
+          color="text-purple-600"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-4 rounded-xl shadow-md h-[300px]">
-          <h2 className="text-lg font-semibold mb-4 text-gray-700">Weekly Orders - Bar Chart</h2>
+          <h2 className="text-lg font-semibold mb-4 text-gray-700">
+            Weekly Orders - Bar Chart
+          </h2>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -79,7 +153,9 @@ const Dash = () => {
         </div>
 
         <div className="bg-white p-4 rounded-xl shadow-md h-[300px]">
-          <h2 className="text-lg font-semibold mb-4 text-gray-700">Weekly Orders - Line Chart</h2>
+          <h2 className="text-lg font-semibold mb-4 text-gray-700">
+            Weekly Orders - Line Chart
+          </h2>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -87,7 +163,12 @@ const Dash = () => {
               <YAxis allowDecimals={false} />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="pending" stroke="#facc15" activeDot={{ r: 6 }} />
+              <Line
+                type="monotone"
+                dataKey="pending"
+                stroke="#facc15"
+                activeDot={{ r: 6 }}
+              />
               <Line type="monotone" dataKey="completed" stroke="#4ade80" />
             </LineChart>
           </ResponsiveContainer>
@@ -108,4 +189,3 @@ const StatsCard = ({ icon, label, value, color }) => (
 );
 
 export default Dash;
-

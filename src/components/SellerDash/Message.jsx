@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import appwriteService from '../../appwrite/config';
 import { useSelector } from 'react-redux';
+import authService from '../../appwrite/auth';
 
 const Message = () => {
 
@@ -11,6 +12,15 @@ const Message = () => {
   const sellerId = userData?.$id 
 
   const fetchMessages = async () => {
+
+      const session = await authService.getCurrentUser()
+      const userDoc = await appwriteService.getUserById(session.$id)
+
+       if(userDoc.status !== 'active'){
+      alert("blocked user can't seen the messages")
+      return;
+    }
+
       try { 
         if(!sellerId) return;
 
@@ -34,6 +44,7 @@ const Message = () => {
   }  
 
   useEffect(() => {
+
 
      if (sellerId) {
       fetchMessages();

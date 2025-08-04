@@ -353,6 +353,7 @@ async getOrdersBySeller(sellerId) {
           email: userData.email,
           phone: userData.phone || "",
           role: userData.role || "buyer",
+          status: userData.status || "",
           businessName: userData.businessName || "",
           businessAddress: userData.businessAddress || "",
         }
@@ -406,6 +407,22 @@ async getUserDocumentByUserId(userId) {
   }
 }
 
+async getUserRole(userId) {
+  try {
+    const userDoc = await this.databases.listDocuments(
+      conf.appwriteDatabaseId,
+      conf.appwriteUserCollectionId,
+      [Query.equal("userId", userId)]
+    );
+    return userDoc.total > 0 ? userDoc.documents[0].role : "buyer"; // Default to "buyer" if no role found
+     
+  } catch (error) {
+    console.error("Error fetching user role:", error);
+    throw error;
+    
+  }
+}
+
 // In appwrite/config.js or wherever your appwriteService is
 async getUserById(userId) {
   return this.databases.listDocuments(
@@ -414,6 +431,60 @@ async getUserById(userId) {
     [Query.equal("userId", userId)]
   ).then(res => res.documents[0]);
 }
+
+async getAllUsers() {
+  try {
+    return await this.databases.listDocuments(
+      conf.appwriteDatabaseId,
+      conf.appwriteUserCollectionId,
+      [Query.limit(100),
+        Query.orderDesc("$createdAt")
+      ],
+      
+    );
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    throw error;
+  }
+}
+
+async getAllOrders() {
+  try {
+    return await this.databases.listDocuments(
+      conf.appwriteDatabaseId,
+      conf.appwriteOrderCollectionId
+    );
+  } catch (error) {
+    console.error("Error fetching all orders:", error);
+    throw error;
+  }
+}
+
+async updateUser(userId, data){
+  try {
+    return await this.databases.updateDocument(
+      conf.appwriteDatabaseId,
+      conf.appwriteUserCollectionId,
+      userId,
+      data
+    )
+  } catch (error) {
+      throw error;
+  }
+}
+
+async getListingByAllSeller(){
+  try {
+    return await this.databases.listDocuments(
+      conf.appwriteDatabaseId,
+      conf.appwriteCollectionId
+    )
+  } catch (error) {
+    console.error("Error fetching listings by all sellers:", error);
+    throw error;
+  }
+}
+
 
 async getFilteredPosts(queries) {
   try {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { SellerLayout } from '../components'
+import { SellerLayout } from '../../components'
 
 function SellerDash() {
   return (

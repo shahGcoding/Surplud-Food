@@ -15,7 +15,12 @@ import Select from "./Select";
 import Carousel from "./carousel/Carousel";
 import ContactUs from "./ContactUs";
 import About from "./About";
-import AdminDash from './AdminDash/AdminDash'
+import AdminLayout from './AdminDash/AdminLayout';
+import AdminDash from "./AdminDash/AdminDash";
+import ManageUsers from './AdminDash/ManageUsers';
+import ManageListings from './AdminDash/ManageListings';
+import HandleComplaints from './AdminDash/HandleComplaints';
+import GenerateReport from './AdminDash/GenerateReport';
 import SellerLayout from './SellerDash/SellerLayout'
 import SearchBar from "./SearchBar/SearchBar";
 import Filter from "./SearchBar/Filter";
@@ -26,6 +31,7 @@ import Listings from "./SellerDash/Listings";
 import Message from "./SellerDash/Message";
 import Orders from "./Buyer/Orders";
 import Testimonial from "./Testimonial";
+import DarkMode from './toggleBtn/DarkMode'
 
 export {
     Header,
@@ -45,7 +51,7 @@ export {
     Carousel,
     ContactUs,
     About,
-    AdminDash,
+    AdminLayout,
     SellerLayout,
     SearchBar,
     Filter,
@@ -55,7 +61,13 @@ export {
     Listings,
     Message,
     Orders,
-    Testimonial
+    Testimonial,
+    AdminDash,
+    ManageUsers,
+    ManageListings,
+    HandleComplaints,
+    GenerateReport,
+    DarkMode
 
 
 }

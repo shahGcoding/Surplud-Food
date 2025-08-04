@@ -41,7 +41,6 @@ const SellerLayout = () => {
   }, [sellerId]);
 
 
-
   const navLinkStyle = ({ isActive }) =>
     `flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
       isActive ? "bg-green-600 text-white" : "text-gray-700 hover:bg-green-100 hover:text-green-700"

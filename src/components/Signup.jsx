@@ -96,6 +96,7 @@ function Signup() {
               {...register("password", { required: true })}
             />
 
+
             {/* Extra Fields for Sellers */}
             {role === "seller" && (
               <>
