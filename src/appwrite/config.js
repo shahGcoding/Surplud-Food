@@ -60,6 +60,28 @@ export class Service {
     }
   }
 
+  async postComplaint({buyerId, buyerName, sellerId, sellerName, orderId, message, status, createdAt }){
+      try {
+        return await this.databases.createDocument(
+          conf.appwriteDatabaseId,
+          conf.appwriteComplaintsCollectionId,
+          ID.unique(),
+          {
+            buyerId,
+            buyerName,
+            sellerId,
+            sellerName,
+            orderId,
+            message,
+            status,
+            createdAt
+          }
+        )
+      } catch (error) {
+        throw error;
+      }
+  }
+
   async postMessage({ sellerId, buyerId, buyerName, orderId, message, dateSent, status}) {
 
     try {
@@ -144,30 +166,6 @@ export class Service {
       throw error;
       
     }
-
-  //   const DB_ID = conf.appwriteDatabaseId;
-  //   const ORDER_COLLECTION_ID = conf.appwriteOrderCollectionId;
-
-  //   try {
-      
-  //   // Step 1: Get the current order
-  //   const order = await this.databases.getDocument(DB_ID, ORDER_COLLECTION_ID, orderId);
-
-  //   // Step 2: Update the status with all required fields preserved
-  //   const updatedOrder = await this.databases.updateDocument(DB_ID, ORDER_COLLECTION_ID, orderId, {
-  //     buyerId: order.buyerId,
-  //     sellerId: order.sellerId,
-  //     postId: order.postId,
-  //     quantity: order.quantity,
-  //     price: order.price,
-  //     status: newStatus,
-  //   });
-
-  //   return updatedOrder;
-  // } catch (error) {
-  //   console.error("❌ Error updating order status:", error);
-  //   throw error;
-  // }
   }
 
   async getOrdersByBuyer(buyerName) {
@@ -183,23 +181,37 @@ export class Service {
 }
 
 
-  async updatePost(slug, { title, content, featuredImage, status }) {
-    try {
-      return await this.databases.updateDocument(
-        conf.appwriteDatabaseId,
-        conf.appwriteCollectionId,
-        slug,
-        {
-          title,
-          content,
-          featuredImage,
-          status,
-        }
-      );
-    } catch (error) {
-      console.log("Appwirte service :: createPost :: error", error);
-    }
+  // async updatePost(slug, { title, content, featuredImage, status }) {
+  //   try {
+  //     return await this.databases.updateDocument(
+  //       conf.appwriteDatabaseId,
+  //       conf.appwriteCollectionId,
+  //       slug,
+  //       {
+  //         title,
+  //         content,
+  //         featuredImage,
+  //         status,
+  //       }
+  //     );
+  //   } catch (error) {
+  //     console.log("Appwirte service :: createPost :: error", error);
+  //   }
+  // }
+
+  async updatePost(slug, updates) {
+  try {
+    return await this.databases.updateDocument(
+      conf.appwriteDatabaseId,
+      conf.appwriteCollectionId,
+      slug,
+      updates
+    );
+  } catch (error) {
+    console.log("Appwrite service :: updatePost :: error", error);
   }
+}
+
 
   async deletePost(slug) {
     try {
@@ -240,6 +252,31 @@ export class Service {
       return false;
     }
   }
+
+  async getAllComplaints() {
+    try {
+      return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteComplaintsCollectionId,
+      )
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async getPostsForAdmin() {
+    try {
+      return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteCollectionId,
+      );
+    } catch (error) {
+      console.log("Appwirte service :: createPost :: error", error);
+      return false;
+    }
+  }
+
+
 
  async getPostsByUser(userId) {
   try {
@@ -283,48 +320,6 @@ async getOrdersBySeller(sellerId) {
     }
   }
 
-    
-
-  //save user data
-
-  // async saveUserData(userId, userData) {
-  //     try {
-
-  //         console.log("Saving User Data:", userData);
-
-  //         // Check if the user already exists in the collection
-  //         const existingUsers = await this.databases.listDocuments(
-  //             conf.appwriteDatabaseId,
-  //             conf.appwriteUserCollectionId,
-  //             [Query.equal("email", userData.email)] // Check if the same userId exists
-  //         );
-
-  //         if (existingUsers.total > 0) {
-  //             console.log("User already exists in the database.");
-  //             return existingUsers.documents[0];  // Return existing user data
-  //         }
-
-  //         // If the user does not exist, create a new record
-  //         return await this.databases.createDocument(
-  //             conf.appwriteDatabaseId,
-  //             conf.appwriteUserCollectionId,
-  //             ID.unique(),  // Ensure a unique document ID
-
-  //             {
-  //             userId,
-  //             name: userData.name,
-  //             email: userData.email,
-  //             phone: userData.phone || "",  // Ensure it's not undefined
-  //             role: userData.role || "",
-  //             businessName: userData.businessName || "",
-  //             businessAddress: userData.businessAddress || ""
-  //             }
-  //         );
-  //     } catch (error) {
-  //         console.error("Error saving user data:", error);
-  //         throw error;
-  //     }
-  // }
 
   async saveUserData(userId, userData) {
     try {
@@ -364,15 +359,6 @@ async getOrdersBySeller(sellerId) {
     }
   }
 
-//  async getOrdersBySeller(sellerId) {
-//     return this.databases.listDocuments(
-//         conf.appwriteDatabaseId,
-//         conf.appwriteOrderCollectionId,
-//         [Query.equal("sellerId", sellerId)]
-//     ).then(res => res.documents);
-// }
-
-
  async updateUserData(documentId, updatedData) {
   try {
     return await this.databases.updateDocument(
@@ -387,6 +373,30 @@ async getOrdersBySeller(sellerId) {
   }
 }
 
+async updateComplaintStatus(complaintId, status){
+  try{
+  return await this.databases.updateDocument(
+    conf.appwriteDatabaseId,
+    conf.appwriteComplaintsCollectionId,
+    complaintId,
+    {status}
+  )
+  } catch(error) {
+      throw error;
+  }
+}
+
+deleteComplaint(complaintId) {
+  try{
+  return this.databases.deleteDocument(
+    conf.appwriteDatabaseId,
+    conf.appwriteComplaintsCollectionId,
+    complaintId
+  );
+} catch(error){
+    throw error;
+}
+}
 
 async getUserDocumentByUserId(userId) {
   try {

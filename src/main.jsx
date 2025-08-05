@@ -29,6 +29,7 @@ import Profile from "./pages/seller/Profile.jsx";
 import Message from "./pages/seller/Message.jsx";
 import MyListing from "./pages/seller/MyListing.jsx";
 import Orders from "./components/Buyer/Orders.jsx"; // Import Orders component
+import BuyerComplaint from "./components/Buyer/BuyerComplaint.jsx"; 
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,14 @@ const router = createBrowserRouter([
             <Signup />
           </AuthLayout>
         ),
+      },
+      {
+        path: "/buyer/buyercomplaint",
+        element: (
+          <AuthLayout authentication={true}>
+            <BuyerComplaint />
+          </AuthLayout>
+        )
       },
       {
         path: "/buyer/orders",

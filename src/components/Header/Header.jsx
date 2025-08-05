@@ -16,7 +16,7 @@ function Header() {
     { name: 'About us', slug: '/aboutus', active: true },
     { name: 'Sign In /SignUp', slug: '/login', active: !authStatus },
     { name: 'Dashboard', slug: '/seller/dashboard', active: authStatus && role === 'seller' },
-    { name: 'mainDashboard', slug: '/admin/maindashboard', active: authStatus && role === 'admin' }, 
+    { name: 'mainDashboard', slug: '/admin/maindashboard', active: authStatus && role === 'admin' },
   ];
 
   return (

@@ -31,7 +31,8 @@ import Listings from "./SellerDash/Listings";
 import Message from "./SellerDash/Message";
 import Orders from "./Buyer/Orders";
 import Testimonial from "./Testimonial";
-import DarkMode from './toggleBtn/DarkMode'
+import DarkMode from './toggleBtn/DarkMode';
+import BuyerComplaint from "./Buyer/BuyerComplaint";
 
 export {
     Header,
@@ -67,7 +68,8 @@ export {
     ManageListings,
     HandleComplaints,
     GenerateReport,
-    DarkMode
+    DarkMode,
+    BuyerComplaint
 
 
 }

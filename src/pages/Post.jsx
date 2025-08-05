@@ -8,14 +8,19 @@ import { useSelector } from "react-redux";
 export default function Post() {
   const [post, setPost] = useState(null);
   const [seller, setSeller] = useState(null);
-  const { slug } = useParams();
-  const navigate = useNavigate();
-  const userData = useSelector((state) => state.auth.userData);
-  const reduxUserId = useSelector((state) => state.auth.userData?.$id);
+
   const [placingOrder, setPlacingOrder] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
 
-  const canModify = post && reduxUserId ? post.userId === reduxUserId : false;
+  const { slug } = useParams();
+  const navigate = useNavigate();
+
+  const userData = useSelector((state) => state.auth.userData);
+  const reduxUserId = useSelector((state) => state.auth.userData?.$id);
+
+  const canModify =
+    userData?.role === "admin" ||
+    (userData?.role === "seller" && post?.userId === reduxUserId);
 
   useEffect(() => {
     if (slug) {
@@ -42,6 +47,7 @@ export default function Post() {
   };
 
   const handlePlaceOrder = async () => {
+
     if (!userData || userData.role !== "buyer") {
       alert("Only buyers can place orders.");
       return;
@@ -82,7 +88,7 @@ export default function Post() {
   return post ? (
     <div className="py-8 px-4">
       <div className="flex flex-col md:flex-row bg-white shadow-lg rounded-lg overflow-hidden">
-        {/* Image & Edit/Delete Buttons */}
+
         <div className="md:w-1/2 w-full relative">
           <img
             src={appwriteService.getFileURL(post.featuredImage)}
@@ -92,10 +98,12 @@ export default function Post() {
 
           {canModify && (
             <div className="absolute top-4 right-4 flex gap-2">
-              <Link to={`/edit-post/${post.$id}`}>
-                <Button bgColor="bg-green-500">Edit</Button>
-              </Link>
-              <Button bgColor="bg-red-500" onClick={deletePost}>
+              {userData?.role === "seller" && (
+                <Link to={`/edit-post/${post.$id}`}>
+                  <Button bgColor="bg-green-500">Edit</Button>
+                </Link>
+              )}
+              <Button className="bg-red-500 hover:cursor-pointer" onClick={deletePost}>
                 Delete
               </Button>
             </div>
@@ -131,12 +139,14 @@ export default function Post() {
             </div>
           )}
 
-          {/* Seller Info
+
+          {/* Seller Info */}
         <div className="bg-gray-100 p-4 rounded-md">
           <p className="text-sm font-semibold mb-1">Seller Info:</p>
-          <p className="text-sm text-gray-700">Name: {post.sellerName || "N/A"}</p>
-          <p className="text-sm text-gray-700">Address: {post.businessAddress || "N/A"}</p>
-        </div> */}
+          <p className="text-sm text-gray-700">Name: {seller?.name}</p>
+          <p className="text-sm text-gray-700">Email: {seller?.email}</p>
+          <p className="text-sm text-gray-700">Address: {seller?.businessAddress}</p>
+        </div>
 
           {/* Place Order Button */}
           {userData?.role === "buyer" && (
