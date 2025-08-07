@@ -25,74 +25,84 @@ const Dash = () => {
   const { userData } = useSelector((state) => state.auth);
   const sellerId = userData?.$id;
 
-
-  const [userDoc, setUserDoc] = useState("active")
-  const [isLoadingUser, setIsLoadingUser] = useState(true)
+  const [users, setUsers] = useState("active");
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   const [listings, setListings] = useState(0);
   const [pendingOrders, setPendingOrders] = useState(0);
   const [completedOrders, setCompletedOrders] = useState(0);
   const [buyers, setBuyers] = useState(0);
 
-  const data = [
-    { name: "Mon", completed: 8, pending: 4 },
-    { name: "Tue", completed: 5, pending: 3 },
-    { name: "Wed", completed: 9, pending: 6 },
-    { name: "Thu", completed: 7, pending: 2 },
-    { name: "Fri", completed: 4, pending: 5 },
-    { name: "Sat", completed: 10, pending: 1 },
-    { name: "Sun", completed: 6, pending: 3 },
-  ];
+  const [chartData, setChartData] = useState([]);
 
-   const fetchUSerDoc = async () => {
-  try {
+  const fetchUSerDoc = async () => {
+    try {
       const session = await authService.getCurrentUser();
       const doc = await appwriteService.getUserById(session.$id);
-      setUserDoc(doc);
-
-  } catch (error) {
-      throw error
-    } finally{
-        setIsLoadingUser(false)
+      setUsers(doc);
+    } catch (error) {
+      throw error;
+    } finally {
+      setIsLoadingUser(false);
     }
-
- };
+  };
 
   const fetchDashboardData = async () => {
     if (!sellerId) return;
 
     try {
-      // Fetch Listings
-      const listingRes = await appwriteService.getPostsByUser(sellerId);
-      const listing = listingRes?.documents?.length || 0;
-      setListings(listing);
+      const listing = await appwriteService.getPostsByUser(sellerId);
+      setListings(listing?.documents?.length || 0);
 
-      // Fetch Orders
       const orders = await appwriteService.getOrdersBySeller(sellerId);
 
       const pending = orders.filter((o) => o.status === "Pending").length;
-      const completed = orders.filter((o) => o.status === "Completed").length;
-      const uniqueBuyers = new Set(orders.map((o) => o.buyerId));
-
       setPendingOrders(pending);
+
+      const completed = orders.filter((o) => o.status === "Delivered").length;
       setCompletedOrders(completed);
+
+      const uniqueBuyers = new Set(orders.map((o) => o.buyerId));
       setBuyers(uniqueBuyers.size);
+
+      // for chart
+      const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const weekData = {
+        Sun: { name: "Sun", completed: 0, pending: 0 },
+        Mon: { name: "Mon", completed: 0, pending: 0 },
+        Tue: { name: "Tue", completed: 0, pending: 0 },
+        Wed: { name: "Wed", completed: 0, pending: 0 },
+        Thu: { name: "Thu", completed: 0, pending: 0 },
+        Fri: { name: "Fri", completed: 0, pending: 0 },
+        Sat: { name: "Sat", completed: 0, pending: 0 },
+      };
+
+      orders.forEach((order) => {
+        const createdAt = new Date(order.$createdAt);
+        const dayName = daysMap[createdAt.getDay()];
+
+        if (order.status === "Pending") {
+          weekData[dayName].pending += 1;
+        } else if (order.status === "Delivered") {
+          weekData[dayName].completed += 1;
+        }
+      });
+
+      // Convert to array and sort by day order
+      const orderedWeekData = daysMap.map((day) => weekData[day]);
+      setChartData(orderedWeekData);
+
     } catch (err) {
       console.error("Error loading dashboard data:", err);
     }
   };
-
-  // useEffect(() => {
-  //   fetchUSerDoc();
-  // }, [])
 
   useEffect(() => {
     fetchUSerDoc();
     fetchDashboardData();
   }, [sellerId]);
 
-  if(isLoadingUser)
-  {
+  if (isLoadingUser) {
     return <div className="p-6 text-gray-600">Loading dashboard...</div>;
   }
 
@@ -100,12 +110,11 @@ const Dash = () => {
     <main className="p-6 space-y-8 bg-gray-50 min-h-screen">
       <div className="text-3xl font-bold text-gray-800"> Dashboard</div>
 
-       {
-       userDoc.status !== "active" && (
+      {users.status !== "active" && (
         <div className="bg-red-100 text-red-700 p-2 rounded">
           Your account is currently blocked. Limited access.
         </div>
-      )} 
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
@@ -134,30 +143,13 @@ const Dash = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-4 rounded-xl shadow-md h-[300px]">
-          <h2 className="text-lg font-semibold mb-4 text-gray-700">
-            Weekly Orders - Bar Chart
-          </h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="pending" fill="#facc15" />
-              <Bar dataKey="completed" fill="#4ade80" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
+      <div className="grid grid-cols-1 gap-6">
         <div className="bg-white p-4 rounded-xl shadow-md h-[300px]">
           <h2 className="text-lg font-semibold mb-4 text-gray-700">
             Weekly Orders - Line Chart
           </h2>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
+            <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis allowDecimals={false} />

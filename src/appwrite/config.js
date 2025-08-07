@@ -60,7 +60,7 @@ export class Service {
     }
   }
 
-  async postComplaint({buyerId, buyerName, sellerId, sellerName, orderId, message, status, createdAt }){
+  async postComplaint({buyerId, buyerName, sellerId, messageBy, sellerName, buyerRole, sellerRole, orderId, message, status, createdAt }){
       try {
         return await this.databases.createDocument(
           conf.appwriteDatabaseId,
@@ -71,7 +71,10 @@ export class Service {
             buyerName,
             sellerId,
             sellerName,
+            buyerRole,
+            sellerRole,
             orderId,
+            messageBy,
             message,
             status,
             createdAt
@@ -180,24 +183,6 @@ export class Service {
     }
 }
 
-
-  // async updatePost(slug, { title, content, featuredImage, status }) {
-  //   try {
-  //     return await this.databases.updateDocument(
-  //       conf.appwriteDatabaseId,
-  //       conf.appwriteCollectionId,
-  //       slug,
-  //       {
-  //         title,
-  //         content,
-  //         featuredImage,
-  //         status,
-  //       }
-  //     );
-  //   } catch (error) {
-  //     console.log("Appwirte service :: createPost :: error", error);
-  //   }
-  // }
 
   async updatePost(slug, updates) {
   try {

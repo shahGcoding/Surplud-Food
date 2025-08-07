@@ -9,10 +9,6 @@ function ManageUsers() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredResults, setFilteredResults] = useState([]);
 
-  // for edit user
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [editForm, setEditForm] = useState({ name: "", email: "", role: "" });
-
   const fetchUsers = async () => {
     setLoading(true);
     try {

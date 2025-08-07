@@ -123,7 +123,9 @@ function PostForm({ post }) {
   }, [watch, slugTransform, setValue]);
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
+    <div>
+      <h1 className="font-bold text-3xl mb-8">Add Food Listing</h1>
+    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap border-2 border-gray-200">
       <div className="w-2/3 px-2">
         <Input
           label="Title :"
@@ -195,6 +197,7 @@ function PostForm({ post }) {
         </Button>
       </div>
     </form>
+    </div>
   );
 }
 

@@ -1,5 +1,6 @@
 import React,{useState, useEffect} from "react";
 import { Outlet, NavLink } from "react-router-dom";
+import { BsHouse, BsList, BsPlus, BsCart, BsChat, BsExclamationCircleFill } from "react-icons/bs";
 import { LogoutBtn } from '../index';
 import { useSelector } from "react-redux";
 import appwriteService from "../../appwrite/config";
@@ -53,16 +54,20 @@ const SellerLayout = () => {
         <h2 className="text-2xl font-bold text-green-700 mb-8">Seller Panel</h2>
         <nav className="flex flex-col gap-3">
           <NavLink to="/seller/dashboard" className={navLinkStyle}>
-            🏠 <span className="ml-2">Dashboard</span>
+                <BsHouse/>
+                <span className="ml-2">Dashboard</span>
           </NavLink>
           <NavLink to="/seller/mylisting" className={navLinkStyle}>
-            🍱 <span className="ml-2">My Listings</span>
+          <BsList/>
+             <span className="ml-2">My Listings</span>
           </NavLink>
           <NavLink to="/seller/listings" className={navLinkStyle}>
-            ➕ <span className="ml-2">Add New Listing</span>
+          <BsPlus/>
+             <span className="ml-2">Add New Listing</span>
           </NavLink>
           <NavLink to="/seller/order" className={navLinkStyle}>
-            🧾 <span className="ml-2">Orders</span>
+          <BsCart/>
+             <span className="ml-2">Orders</span>
           </NavLink>
           <NavLink to="/seller/message" className={`${navLinkStyle} relative`}>
             💬 <span className="ml-2">Messages</span>
@@ -72,11 +77,16 @@ const SellerLayout = () => {
               </span>
             )}
           </NavLink>
+          <NavLink to="/seller/complain" className={navLinkStyle}>
+          <BsExclamationCircleFill/>
+             <span className="ml-2">Report Buyer</span>
+          </NavLink>
           {authStatus && (
             <div className="pt-4 mt-52 border-t border-green-200">
               <LogoutBtn />
             </div>
           )}
+          
         </nav>
       </aside>
 

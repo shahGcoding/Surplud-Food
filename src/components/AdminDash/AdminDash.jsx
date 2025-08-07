@@ -7,10 +7,11 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,} from 'recharts';
-  import { format } from "date-fns"
+  ResponsiveContainer,
+} from "recharts";
+import { format } from "date-fns";
 import appwriteService from "../../appwrite/config";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 
 function AdminDash() {
   const [sellers, setsellers] = useState(0);
@@ -19,14 +20,8 @@ function AdminDash() {
   const [totalOrders, setTotalOrders] = useState(0);
   const [weeklyOrders, setWeeklyOrders] = useState([]);
 
-  const userData = useSelector((state) => state.auth.userData);
-  const adminId = userData.$id;
-  console.log("Admin ID:", adminId);
-
   useEffect(() => {
     const fetchData = async () => {
-      if (!adminId) return;
-
       try {
         // fetch users like seller and buyer
         const response = await appwriteService.getAllUsers();
@@ -48,7 +43,7 @@ function AdminDash() {
 
         // for chart
 
-                const orders = totalOrder.documents;
+        const orders = totalOrder.documents;
         const past7Days = Array.from({ length: 7 }, (_, i) => {
           const date = new Date();
           date.setDate(date.getDate() - i);
@@ -66,13 +61,12 @@ function AdminDash() {
         });
 
         setWeeklyOrders(dailyCounts);
-
       } catch (error) {
         console.error("Error fetching admin dashboard data:", error);
       }
     };
     fetchData();
-  }, [adminId]);
+  }, []);
 
   return (
     <main>
@@ -106,9 +100,14 @@ function AdminDash() {
       </div>
 
       <div className="bg-white mt-10 p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4 text-gray-700">Weekly Orders</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-700">
+          Weekly Orders
+        </h2>
         <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={weeklyOrders} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+          <AreaChart
+            data={weeklyOrders}
+            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+          >
             <defs>
               <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
@@ -129,7 +128,6 @@ function AdminDash() {
           </AreaChart>
         </ResponsiveContainer>
       </div>
-
     </main>
   );
 }

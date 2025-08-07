@@ -53,8 +53,13 @@ export default function Post() {
       return;
     }
 
-    if (userData.status !== "active") {
-      return alert("Your account is blocked. You cannot place orders.");
+    const buyerDoc = await appwriteService.getUserById(userData.$id);
+
+    // Check if buyer is blocked
+    if (buyerDoc.status !== "active") {
+      alert("You are blocked. You cannot place orders.");
+      setPlacingOrder(false);
+      return;
     }
 
     setPlacingOrder(true);
@@ -100,7 +105,7 @@ export default function Post() {
             <div className="absolute top-4 right-4 flex gap-2">
               {userData?.role === "seller" && (
                 <Link to={`/edit-post/${post.$id}`}>
-                  <Button bgColor="bg-green-500">Edit</Button>
+                  <Button bgColor="bg-green-500 hover:cursor-pointer">Edit</Button>
                 </Link>
               )}
               <Button className="bg-red-500 hover:cursor-pointer" onClick={deletePost}>

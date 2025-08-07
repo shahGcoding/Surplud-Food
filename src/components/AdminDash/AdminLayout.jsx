@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import appwriteService from "../../appwrite/config";
-import { DarkMode, LogoutBtn } from "../index";
+import { LogoutBtn } from "../index";
 import { BsHouse, BsPeople, BsViewList, BsHandbag } from "react-icons/bs"; 
 
 function AdminLayout() {
   const authStatus = useSelector((state) => state.auth.status);
   const role = useSelector((state) => state.auth.role);
   const userData = useSelector((state) => state.auth.userData);
-  const adminId = userData.$id;
+ // const adminId = userData.$id;
 
   const [unreadComplaints, setUnreadComplaints] = useState(0);
 
@@ -26,7 +26,7 @@ function AdminLayout() {
       }
     };
 
-    if (adminId) {
+    if (userData) {
       fetchComplaints();
 
       const interval = setInterval(() => {
@@ -34,7 +34,7 @@ function AdminLayout() {
       }, 2000);
       return () => clearInterval(interval);
     }
-  }, [adminId]);
+  }, [userData]);
 
   const navLinkStyle = ({ isActive }) =>
     `flex items-center mb-4 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -65,6 +65,7 @@ function AdminLayout() {
         <NavLink
           to={"/admin/complainthandle"}
           className={`${navLinkStyle} relative`}
+
         >
           🧾 <span className="ml-2">Handle Complaints</span>
           {unreadComplaints > 0 && (

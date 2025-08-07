@@ -40,7 +40,7 @@ function Home() {
       const queries = [Query.equal("status", "active")];
 
       if (filters.location) {
-        queries.push(Query.equal("location", filters.location));
+        queries.push(Query.equal("location", String(filters.location)));
         setIsFiltered(true);
       }
 

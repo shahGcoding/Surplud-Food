@@ -33,6 +33,7 @@ import Orders from "./Buyer/Orders";
 import Testimonial from "./Testimonial";
 import DarkMode from './toggleBtn/DarkMode';
 import BuyerComplaint from "./Buyer/BuyerComplaint";
+import Complains from "./SellerDash/Complains";
 
 export {
     Header,
@@ -69,7 +70,8 @@ export {
     HandleComplaints,
     GenerateReport,
     DarkMode,
-    BuyerComplaint
+    BuyerComplaint,
+    Complains
 
 
 }

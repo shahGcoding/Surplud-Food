@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import appwriteService from "../../appwrite/config";
 import { useSelector } from "react-redux";
 import { Container, Button } from "../../components";
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
 
 export default function Order() {
   const userData = useSelector((state) => state.auth.userData);
 
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [orders, setOrders] = useState([]);
 
@@ -37,16 +37,14 @@ export default function Order() {
     }
   };
 
-
-
   const fetchSellerDetails = async () => {
     try {
       const response = await appwriteService.getAllUsers();
       setUsers(response.documents || []);
     } catch (error) {
-      throw error
+      throw error;
     }
-  }
+  };
 
   const getSellerName = (userId) => {
     const user = users.find((u) => u.userId === userId);
@@ -54,8 +52,6 @@ export default function Order() {
   };
 
   useEffect(() => {
-
-    console.log("Current user:", userData);
     if (userData && userData.email) {
       fetchOrders(userData.email);
     }
@@ -75,13 +71,15 @@ export default function Order() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Accepted":
+      case "Delivered":
         return "text-green-600";
+      case "Accepted":
+        return "text-yellow-600";
       case "Rejected":
         return "text-red-600";
       case "Pending":
       default:
-        return "text-yellow-600";
+        return "text-blue-600";
     }
   };
 
@@ -122,22 +120,23 @@ export default function Order() {
                     className="w-full border p-2 rounded mb-2"
                     rows={3}
                   />
-                  <Button
-                    onClick={() =>
-                      handleSendMessage(
-                        order.sellerId,
-                        order.$id,
-                        messageInput[order.$id]
-                      )
-                    }
-                    className="bg-green-500 w-40 text-white px-4 py-1 rounded hover:bg-green-700 "
-                    disabled={sendingStatus[order.$id] === "sending"}
-                  >
-                    {sendingStatus[order.$id] === "sending"
-                      ? "Sending..."
-                      : "Send Message"}
-                  </Button>
-                  
+                  {order.status !== "Delivered" && (
+                    <Button
+                      onClick={() =>
+                        handleSendMessage(
+                          order.sellerId,
+                          order.$id,
+                          messageInput[order.$id]
+                        )
+                      }
+                      className="bg-green-500 w-40 text-white px-4 py-1 rounded hover:bg-green-700 "
+                      disabled={sendingStatus[order.$id] === "sending"}
+                    >
+                      {sendingStatus[order.$id] === "sending"
+                        ? "Sending..."
+                        : "Send Message"}
+                    </Button>
+                  )}
                 </div>
 
                 <p>Seller Name: {getSellerName(order.sellerId)}</p>
@@ -147,15 +146,21 @@ export default function Order() {
                     {order.status}
                   </span>
                 </p>
-                <div className="flex justify-end">
-                <Link to={`/buyer/buyercomplaint?sellerId=${order.sellerId}&orderId=${order.$id}&sellerName=${getSellerName(order.sellerId)}`} >
-                  <Button 
-                    className="bg-orange-400 text-white px-4 py-1 rounded hover:bg-orange-600"
-                  >
-                    complaint to admin
-                  </Button>    
-                   </Link>
-                 </div>      
+                {order.status !== "Delivered" && (
+                  <div className="flex justify-end">
+                    <Link
+                      to={`/buyer/buyercomplaint?sellerId=${
+                        order.sellerId
+                      }&orderId=${order.$id}&sellerName=${getSellerName(
+                        order.sellerId
+                      )}`}
+                    >
+                      <Button className="bg-orange-400 text-white px-4 py-1 rounded hover:bg-orange-600">
+                        complaint to admin
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             ))}
         </div>

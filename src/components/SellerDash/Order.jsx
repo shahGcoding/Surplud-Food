@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from "react";
 import appwriteService from "../../appwrite/config";
 import { useSelector } from "react-redux";
-import authService from '../../appwrite/auth'
+import authService from "../../appwrite/auth";
 
 export default function PlaceOrder() {
-    
   const [orders, setOrders] = useState([]);
   const userData = useSelector((state) => state.auth.userData);
 
-
   useEffect(() => {
     const fetchOrders = async () => {
-
-        
-        const session = await authService.getCurrentUser()
-        const userDoc = await appwriteService.getUserById(session.$id)
+      const session = await authService.getCurrentUser();
+      const userDoc = await appwriteService.getUserById(session.$id);
       try {
         if (userDoc.status !== "active") {
           return alert("Blocked sellers cannot accept or reject orders.");
@@ -63,15 +59,12 @@ export default function PlaceOrder() {
             <p>Quantity: {order.quantity} Kg</p>
             <p>Total Price: Rs. {order.totalPrice}</p>
             <p>Buyer: {order.buyerName}</p>
+            <p>BuyerId: {order.buyerId} </p>
             <p>
               Status:{" "}
               <span
                 className={`font-bold ${
-                  order.status === "Pending"
-                    ? "text-yellow-600"
-                    : order.status === "Accepted"
-                    ? "text-green-600"
-                    : "text-red-600"
+                  order.status === "Pending" ? "text-blue-600": order.status === "Accepted"? "text-yellow-600" : order.status === "Delivered" ? "text-green-600" : "text-red-600"
                 }`}
               >
                 {order.status}
@@ -82,16 +75,27 @@ export default function PlaceOrder() {
           {order.status === "Pending" && (
             <div className="flex gap-2">
               <button
-                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-700"
                 onClick={() => handleOrderStatus(order.$id, "Accepted")}
               >
                 Accept
               </button>
               <button
-                className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
                 onClick={() => handleOrderStatus(order.$id, "Rejected")}
               >
                 Reject
+              </button>
+            </div>
+          )}
+
+          {order.status === "Accepted" && (
+            <div className="flex gap-2">
+              <button
+                className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-700"
+                onClick={() => handleOrderStatus(order.$id, "Delivered")}
+              >
+                Delivered
               </button>
             </div>
           )}

@@ -8,7 +8,7 @@ import { Provider } from "react-redux";
 import store from "./store/store.js";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home.jsx";
-import { About, AuthLayout, Login } from "./components/index.js";
+import { About, AuthLayout, Complains, Login } from "./components/index.js";
 import Signup from "./pages/Signup.jsx";
 import AllPosts from "./pages/AllPosts.jsx";
 import AddPost from "./pages/AddPost.jsx";
@@ -29,7 +29,8 @@ import Profile from "./pages/seller/Profile.jsx";
 import Message from "./pages/seller/Message.jsx";
 import MyListing from "./pages/seller/MyListing.jsx";
 import Orders from "./components/Buyer/Orders.jsx"; // Import Orders component
-import BuyerComplaint from "./components/Buyer/BuyerComplaint.jsx"; 
+import BuyerComplaint from "./components/Buyer/BuyerComplaint.jsx";
+import Complain from "./pages/seller/Complain.jsx";
 
 const router = createBrowserRouter([
   {
@@ -62,7 +63,7 @@ const router = createBrowserRouter([
           <AuthLayout authentication={true}>
             <BuyerComplaint />
           </AuthLayout>
-        )
+        ),
       },
       {
         path: "/buyer/orders",
@@ -130,6 +131,7 @@ const router = createBrowserRouter([
           { path: "order", element: <Order /> },
           { path: "profile", element: <Profile /> },
           { path: "message", element: <Message /> },
+          { path: "complain", element: <Complain /> },
         ],
       },
 
@@ -139,17 +141,13 @@ const router = createBrowserRouter([
       },
       {
         path: "/admin",
-        element: (
-       
-            <AdminDashboard />
-          
-        ),
+        element: <AdminDashboard />,
         children: [
           { path: "maindashboard", element: <MainDashboard /> },
-          { path: 'usermanage', element: <UserManage /> },
-          { path: 'listingmanage', element: <ListingManage /> },
-          { path: 'complainthandle', element: <ComplaintHandle /> },
-          { path: 'reportgenerate', element: <ReportGenerate /> },
+          { path: "usermanage", element: <UserManage /> },
+          { path: "listingmanage", element: <ListingManage /> },
+          { path: "complainthandle", element: <ComplaintHandle /> },
+          { path: "reportgenerate", element: <ReportGenerate /> },
         ],
       },
     ],

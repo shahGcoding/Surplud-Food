@@ -9,6 +9,8 @@ const Message = () => {
   const [loading, setLoading] = useState(true);
   const userData  = useSelector((state) => state.auth.userData);
 
+  const [buyerName, setBuyerName] = useState("")
+
   const sellerId = userData?.$id 
 
   const fetchMessages = async () => {
@@ -43,6 +45,23 @@ const Message = () => {
     }
   }  
 
+  // for buyerName 
+
+  useEffect(() => {
+      const fetchBuyer = async () => {
+        const response = await appwriteService.getAllUsers();
+        const currentUser = response.documents.find((user) => user.userId === userData?.$id);
+        if(currentUser){
+          setBuyerName(currentUser.name)
+        }
+      }
+
+      if (userData?.$id) {
+        fetchBuyer();
+      }
+
+  }, [userData])
+
   useEffect(() => {
 
 
@@ -76,7 +95,7 @@ const Message = () => {
               }
               <p className="text-gray-700">{msg.message}</p>
               <div className="text-sm text-gray-500 mt-2">
-                <span>From: {msg.buyerName}</span> <br />
+                <span>From: {buyerName}</span> <br />
                 <span>{new Date(msg.dateSent).toLocaleString()}</span>
               </div>
               {

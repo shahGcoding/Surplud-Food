@@ -15,7 +15,8 @@ function BuyerComplaint() {
   } = useForm();
 
   const userData = useSelector((state) => state.auth.userData);
-
+  const userRole = useSelector((state) => state.auth.role)
+  
   const [searchParams] = useSearchParams();
 
   const [buyerName, setBuyerName] = useState("");
@@ -55,6 +56,10 @@ function BuyerComplaint() {
 
     const complainData = {
       buyerId: userData.$id,
+      role: userRole,
+      buyerRole: "buyer",
+      sellerRole: "seller",
+      messageBy: "buyer",
       buyerName: buyerName,
       sellerId: data.sellerId,
       sellerName: data.sellerName,
@@ -83,6 +88,7 @@ function BuyerComplaint() {
         <Input
           label="Seller ID"
           placeholder="Enter seller ID"
+          type="password"
           {...register("sellerId", { required: "Seller ID is required" })}
         />
         {errors.sellerId && (
@@ -101,6 +107,7 @@ function BuyerComplaint() {
         <Input
           label="Order ID"
           placeholder="Enter order ID"
+          type="password"
           {...register("orderId")}
         />
 
