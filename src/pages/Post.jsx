@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import appwriteService from "../appwrite/config";
-import { Button } from "../components";
+import { Button, Select, Input } from "../components";
 import parse from "html-react-parser";
 import { useSelector } from "react-redux";
 
@@ -47,7 +47,6 @@ export default function Post() {
   };
 
   const handlePlaceOrder = async () => {
-
     if (!userData || userData.role !== "buyer") {
       alert("Only buyers can place orders.");
       return;
@@ -69,10 +68,11 @@ export default function Post() {
         foodTitle: post.title,
         quantity: post.quantity,
         totalPrice: post.price,
+        paymentMethod: "cash on delivery",
         buyerName: userData.name || userData.email || "Unknown Buyer",
         orderDate: new Date().toISOString(),
         sellerId: post.userId,
-        sellerName: userData.name || userData.email || "Unknown Seller",
+        sellerName: seller?.name || seller?.email || "Unknown Seller",
         buyerId: userData.$id,
         status: "Pending",
       };
@@ -93,7 +93,6 @@ export default function Post() {
   return post ? (
     <div className="py-8 px-4">
       <div className="flex flex-col md:flex-row bg-white shadow-lg rounded-lg overflow-hidden">
-
         <div className="md:w-1/2 w-full relative">
           <img
             src={appwriteService.getFileURL(post.featuredImage)}
@@ -105,10 +104,15 @@ export default function Post() {
             <div className="absolute top-4 right-4 flex gap-2">
               {userData?.role === "seller" && (
                 <Link to={`/edit-post/${post.$id}`}>
-                  <Button bgColor="bg-green-500 hover:cursor-pointer">Edit</Button>
+                  <Button bgColor="bg-green-500 hover:cursor-pointer">
+                    Edit
+                  </Button>
                 </Link>
               )}
-              <Button className="bg-red-500 hover:cursor-pointer" onClick={deletePost}>
+              <Button
+                className="bg-red-500 hover:cursor-pointer"
+                onClick={deletePost}
+              >
                 Delete
               </Button>
             </div>
@@ -133,36 +137,49 @@ export default function Post() {
               <label htmlFor="quantity" className="text-sm font-semibold">
                 Select Quantity:
               </label>
-              <input
+              <Input
                 type="number"
                 min="1"
                 max={post.quantity}
                 value={selectedQuantity}
                 onChange={(e) => setSelectedQuantity(Number(e.target.value))}
-                className="w-20 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
               />
             </div>
           )}
 
-
           {/* Seller Info */}
-        <div className="bg-gray-100 p-4 rounded-md">
-          <p className="text-sm font-semibold mb-1">Seller Info:</p>
-          <p className="text-sm text-gray-700">Name: {seller?.name}</p>
-          <p className="text-sm text-gray-700">Email: {seller?.email}</p>
-          <p className="text-sm text-gray-700">Address: {seller?.businessAddress}</p>
-        </div>
+          <div className="bg-gray-100 p-4 rounded-md">
+            <p className="text-sm font-semibold mb-1">Seller Info:</p>
+            <p className="text-sm text-gray-700">Name: {seller?.name}</p>
+            <p className="text-sm text-gray-700">Email: {seller?.email}</p>
+            <p className="text-sm text-gray-700">
+              Address: {seller?.businessAddress}
+            </p>
+          </div>
+          
+          {
+            userData?.role === "buyer" && (
+              <Select 
+              options={["cash on delivery"]}
+              label="Select payment method : "
+              className="mb-4 focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+            )
+          }
 
           {/* Place Order Button */}
-          {userData?.role === "buyer" && (
+          {userData?.role === "buyer" ?  (
             <Button
               onClick={handlePlaceOrder}
               bgColor="bg-green-700"
-              className="hover:bg-green-600 transition"
+              className="hover:bg-green-600 hover:cursor-pointer transition-transform hover:scale-110 ml-64 "
               disabled={placingOrder}
             >
               {placingOrder ? "Placing Order..." : "Place Order"}
             </Button>
+          ) : userData?.role !== "seller" && userData?.role !== "admin" && (
+            <h1 className="font-bold text-2xl ">Sign in for placing order !</h1>
           )}
         </div>
       </div>

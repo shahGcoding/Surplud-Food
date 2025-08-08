@@ -103,7 +103,9 @@ export default function Order() {
                 <p className="font-bold">Food: {order.foodTitle}</p>
                 <p>Quantity: {order.quantity}</p>
                 <p>Total Price: Rs. {order.totalPrice}</p>
+                <p>Payment Method: {order.paymentMethod} </p>
                 <p>Order Date: {order.orderDate}</p>
+                
                 <div className=" flex flex-col mt-4">
                   <label className="block text-sm font-semibold mb-1">
                     Message to Seller:

@@ -9,7 +9,7 @@ function Select({
 {  
     const id = useId()
   return (
-    <div className='w-full'>
+    <div className='w-52'>
         {label && (
             <label htmlFor={id} className='block mb-1 font-medium'>
                 {label}

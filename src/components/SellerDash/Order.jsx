@@ -7,8 +7,7 @@ export default function PlaceOrder() {
   const [orders, setOrders] = useState([]);
   const userData = useSelector((state) => state.auth.userData);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
+  const fetchOrders = async () => {
       const session = await authService.getCurrentUser();
       const userDoc = await appwriteService.getUserById(session.$id);
       try {
@@ -23,10 +22,39 @@ export default function PlaceOrder() {
         console.error("Error fetching seller orders:", error);
       }
     };
+
+  useEffect(() => {
+    
     if (userData && userData.$id) {
       fetchOrders();
     }
   }, [userData]);
+
+  // for admin comission in seller delivered order
+  const markAsDelivered = async (orderId) => {
+
+  const order = orders.find((o) => o.$id === orderId)
+  if (!order) return alert("Order not found.");
+
+  const commissionRate = 0.10;
+  const commissionAmount = parseFloat(order.totalPrice * commissionRate);
+
+  const data = {
+      status: "Delivered",
+      deliveredAt: new Date().toISOString(),
+      comission: commissionAmount,
+      comissionPaid: "false",
+      }
+
+    try {
+      await appwriteService.updateOrder(orderId, data);
+      alert("Order is updated !");
+      fetchOrders();
+    } catch (error) {
+      throw error;
+    }
+  
+}
 
   const handleOrderStatus = async (orderId, newStatus) => {
     try {
@@ -93,9 +121,9 @@ export default function PlaceOrder() {
             <div className="flex gap-2">
               <button
                 className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-700"
-                onClick={() => handleOrderStatus(order.$id, "Delivered")}
+                onClick={() => markAsDelivered(order.$id)}
               >
-                Delivered
+               Mark as Delivered  
               </button>
             </div>
           )}

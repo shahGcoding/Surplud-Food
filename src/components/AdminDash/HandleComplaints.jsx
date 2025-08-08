@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import appwriteService from "../../appwrite/config";
 import { Button } from "../../components";
-import { useSelector } from "react-redux";
 
 function HandleComplaints() {
   const [complaints, setComplaints] = useState([]);
@@ -70,7 +69,7 @@ function HandleComplaints() {
         <p>no complaint Available</p>
       ) : (
         <div className="space-y-4">
-          {complaints.map((complaint) => (
+          {complaints.slice().reverse().map((complaint) => (
             <div
               key={complaint.$id}
               className="p-4 border rounded bg-white shadow"
@@ -125,7 +124,7 @@ function HandleComplaints() {
                 { complaint.status === "resolved" &&
                 <Button
                   onClick={() => handleDelete(complaint.$id)}
-                  className="bg-red-600 text-white"
+                  className="bg-red-500 hover:cursor-pointer hover:scale-110 hover:bg-red-700 text-white "
                 >
                   Delete
                 </Button>

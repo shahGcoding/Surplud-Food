@@ -3,13 +3,13 @@ import { Outlet, NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import appwriteService from "../../appwrite/config";
 import { LogoutBtn } from "../index";
-import { BsHouse, BsPeople, BsViewList, BsHandbag } from "react-icons/bs"; 
+import { BsHouse, BsPeople, BsViewList, BsCurrencyDollar } from "react-icons/bs";
 
 function AdminLayout() {
   const authStatus = useSelector((state) => state.auth.status);
   const role = useSelector((state) => state.auth.role);
   const userData = useSelector((state) => state.auth.userData);
- // const adminId = userData.$id;
+  // const adminId = userData.$id;
 
   const [unreadComplaints, setUnreadComplaints] = useState(0);
 
@@ -51,23 +51,26 @@ function AdminLayout() {
       <aside className="w-64 bg-green-50 border-r border-green-200 p-5 shadow-md">
         <h2 className="text-2xl font-bold text-green-700 mb-8">Admin Panel</h2>
         <NavLink to={"/admin/maindashboard"} className={navLinkStyle}>
-            <BsHouse />
-           <span className="ml-2">Dashboard</span>
+          <BsHouse />
+          <span className="ml-2">Dashboard</span>
         </NavLink>
         <NavLink to={"/admin/usermanage"} className={navLinkStyle}>
-            <BsPeople />
-           <span className="ml-2">Manage Users</span>
+          <BsPeople />
+          <span className="ml-2">Manage Users</span>
         </NavLink>
         <NavLink to={"/admin/listingmanage"} className={navLinkStyle}>
-            <BsViewList />
-           <span className="ml-2">Manage Listings</span>
+          <BsViewList />
+          <span className="ml-2">Manage Listings</span>
+        </NavLink>
+        <NavLink to={"/admin/comission"} className={navLinkStyle}>
+          <BsCurrencyDollar />
+          <span className="ml-2">Earning Commission</span>
         </NavLink>
         <NavLink
           to={"/admin/complainthandle"}
-          className={`${navLinkStyle} relative`}
-
+          className={`${navLinkStyle} relative focus:bg-green-600 focus:text-white mt-4 text-gray-700`}
         >
-          🧾 <span className="ml-2">Handle Complaints</span>
+          🧾 <span>Handle Complaints</span>
           {unreadComplaints > 0 && (
             <span className="absolute -top-1 -right-3 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
               {unreadComplaints}
@@ -76,7 +79,7 @@ function AdminLayout() {
         </NavLink>
 
         {authStatus && role === "admin" && (
-          <div className={` pt-2 mt-52 border-t border-green-300`}>
+          <div className={` pt-2 mt-40 border-t border-green-300`}>
             <LogoutBtn />
           </div>
         )}

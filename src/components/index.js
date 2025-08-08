@@ -34,6 +34,8 @@ import Testimonial from "./Testimonial";
 import DarkMode from './toggleBtn/DarkMode';
 import BuyerComplaint from "./Buyer/BuyerComplaint";
 import Complains from "./SellerDash/Complains";
+import Commissions from "./SellerDash/Commissions";
+import AdminComission from "./AdminDash/AdminComission";
 
 export {
     Header,
@@ -71,7 +73,8 @@ export {
     GenerateReport,
     DarkMode,
     BuyerComplaint,
-    Complains
-
+    Complains,
+    Commissions,
+    AdminComission
 
 }

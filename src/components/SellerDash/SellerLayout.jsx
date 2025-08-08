@@ -1,6 +1,6 @@
 import React,{useState, useEffect} from "react";
 import { Outlet, NavLink } from "react-router-dom";
-import { BsHouse, BsList, BsPlus, BsCart, BsChat, BsExclamationCircleFill } from "react-icons/bs";
+import { BsHouse, BsList, BsPlus, BsCart , BsExclamationCircleFill, BsCurrencyDollar } from "react-icons/bs";
 import { LogoutBtn } from '../index';
 import { useSelector } from "react-redux";
 import appwriteService from "../../appwrite/config";
@@ -81,8 +81,14 @@ const SellerLayout = () => {
           <BsExclamationCircleFill/>
              <span className="ml-2">Report Buyer</span>
           </NavLink>
+
+          <NavLink to="/seller/commision" className={navLinkStyle}>
+            <BsCurrencyDollar/>
+            <span className="ml-2">Commisions</span>
+          </NavLink>  
+
           {authStatus && (
-            <div className="pt-4 mt-52 border-t border-green-200">
+            <div className="pt-4 mt-10 border-t border-green-200">
               <LogoutBtn />
             </div>
           )}

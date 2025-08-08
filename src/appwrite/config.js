@@ -14,7 +14,16 @@ export class Service {
     this.bucket = new Storage(this.client);
   }
 
-  async createPost({ title, slug, content, featuredImage, status, price, quantity, userId }) {
+  async createPost({
+    title,
+    slug,
+    content,
+    featuredImage,
+    status,
+    price,
+    quantity,
+    userId,
+  }) {
     try {
       return await this.databases.createDocument(
         conf.appwriteDatabaseId,
@@ -35,9 +44,19 @@ export class Service {
     }
   }
 
-  async postOrder({ sellerId, sellerName, buyerName, buyerId, foodTitle, quantity, totalPrice, status, orderDate}){
+  async postOrder({
+    sellerId,
+    sellerName,
+    buyerName,
+    buyerId,
+    foodTitle,
+    quantity,
+    totalPrice,
+    paymentMethod,
+    status,
+    orderDate,
+  }) {
     try {
-
       return await this.databases.createDocument(
         conf.appwriteDatabaseId,
         conf.appwriteOrderCollectionId,
@@ -49,44 +68,63 @@ export class Service {
           foodTitle,
           quantity,
           totalPrice,
+          paymentMethod,
           status,
           orderDate,
           sellerName,
         }
       );
-      
     } catch (error) {
       throw error;
     }
   }
 
-  async postComplaint({buyerId, buyerName, sellerId, messageBy, sellerName, buyerRole, sellerRole, orderId, message, status, createdAt }){
-      try {
-        return await this.databases.createDocument(
-          conf.appwriteDatabaseId,
-          conf.appwriteComplaintsCollectionId,
-          ID.unique(),
-          {
-            buyerId,
-            buyerName,
-            sellerId,
-            sellerName,
-            buyerRole,
-            sellerRole,
-            orderId,
-            messageBy,
-            message,
-            status,
-            createdAt
-          }
-        )
-      } catch (error) {
-        throw error;
-      }
+  async postComplaint({
+    buyerId,
+    buyerName,
+    sellerId,
+    messageBy,
+    sellerName,
+    buyerRole,
+    sellerRole,
+    orderId,
+    message,
+    status,
+    createdAt,
+  }) {
+    try {
+      return await this.databases.createDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteComplaintsCollectionId,
+        ID.unique(),
+        {
+          buyerId,
+          buyerName,
+          sellerId,
+          sellerName,
+          buyerRole,
+          sellerRole,
+          orderId,
+          messageBy,
+          message,
+          status,
+          createdAt,
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 
-  async postMessage({ sellerId, buyerId, buyerName, orderId, message, dateSent, status}) {
-
+  async postMessage({
+    sellerId,
+    buyerId,
+    buyerName,
+    orderId,
+    message,
+    dateSent,
+    status,
+  }) {
     try {
       return await this.databases.createDocument(
         conf.appwriteDatabaseId,
@@ -101,7 +139,7 @@ export class Service {
           dateSent,
           status,
         }
-      )
+      );
     } catch (error) {
       console.error("Error posting message:", error);
       throw error;
@@ -115,9 +153,9 @@ export class Service {
         conf.appwriteMessagesCollectionId,
         [
           Query.equal("sellerId", sellerId),
-          Query.orderDesc("$createdAt") // Assuming you want the latest messages first
+          Query.orderDesc("$createdAt"), // Assuming you want the latest messages first
         ]
-      )
+      );
     } catch (error) {
       console.error("Error fetching messages from buyer:", error);
       throw error;
@@ -130,8 +168,8 @@ export class Service {
         conf.appwriteDatabaseId,
         conf.appwriteMessagesCollectionId,
         messageId,
-        { status: "Read" } // Assuming you want to update the status to "Read"  
-      )
+        { status: "Read" } // Assuming you want to update the status to "Read"
+      );
     } catch (error) {
       console.error("Error marking message as read:", error);
       throw error;
@@ -143,13 +181,9 @@ export class Service {
       return await this.databases.listDocuments(
         conf.appwriteDatabaseId,
         conf.appwriteOrderCollectionId,
-        [
-          Query.equal("sellerId", sellerId),
-           Query.orderDesc("$createdAt")
-        ]
+        [Query.equal("sellerId", sellerId), Query.orderDesc("$createdAt")]
       );
-    }
-    catch (error) {
+    } catch (error) {
       throw error;
     }
   }
@@ -161,42 +195,50 @@ export class Service {
         conf.appwriteOrderCollectionId,
         orderId,
         { status: newStatus }
-
       );
-      
     } catch (error) {
       console.error("Error updating order status:", error);
       throw error;
-      
     }
   }
 
   async getOrdersByBuyer(buyerName) {
     try {
-        return await this.databases.listDocuments(
-            conf.appwriteDatabaseId,
-            conf.appwriteOrderCollectionId,
-            [Query.equal("buyerName", buyerName)]
-        );
+      return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteOrderCollectionId,
+        [Query.equal("buyerName", buyerName)]
+      );
     } catch (error) {
-        throw error;
+      throw error;
     }
-}
+  }
 
+  async updateOrder(orderId, data) {
+    try {
+      return await this.databases.updateDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteOrderCollectionId,
+        orderId,
+        data,
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async updatePost(slug, updates) {
-  try {
-    return await this.databases.updateDocument(
-      conf.appwriteDatabaseId,
-      conf.appwriteCollectionId,
-      slug,
-      updates
-    );
-  } catch (error) {
-    console.log("Appwrite service :: updatePost :: error", error);
+    try {
+      return await this.databases.updateDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteCollectionId,
+        slug,
+        updates
+      );
+    } catch (error) {
+      console.log("Appwrite service :: updatePost :: error", error);
+    }
   }
-}
-
 
   async deletePost(slug) {
     try {
@@ -242,10 +284,10 @@ export class Service {
     try {
       return await this.databases.listDocuments(
         conf.appwriteDatabaseId,
-        conf.appwriteComplaintsCollectionId,
-      )
+        conf.appwriteComplaintsCollectionId
+      );
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
@@ -253,7 +295,7 @@ export class Service {
     try {
       return await this.databases.listDocuments(
         conf.appwriteDatabaseId,
-        conf.appwriteCollectionId,
+        conf.appwriteCollectionId
       );
     } catch (error) {
       console.log("Appwirte service :: createPost :: error", error);
@@ -261,36 +303,32 @@ export class Service {
     }
   }
 
-
-
- async getPostsByUser(userId) {
-  try {
-    const res = await this.databases.listDocuments(
-      conf.appwriteDatabaseId,
-      conf.appwriteCollectionId,
-      [Query.equal("userId", userId)]
-    );
-    return res;
-  } catch (error) {
-    console.log("Appwrite service :: getPostsByUser :: error", error);
-    return { documents: [] }; // Return empty array instead of false
+  async getPostsByUser(userId) {
+    try {
+      const res = await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteCollectionId,
+        [Query.equal("userId", userId)]
+      );
+      return res;
+    } catch (error) {
+      console.log("Appwrite service :: getPostsByUser :: error", error);
+      return { documents: [] }; // Return empty array instead of false
+    }
   }
-}
 
-async getOrdersBySeller(sellerId) {
-  try {
-    const res = await this.databases.listDocuments(
-      conf.appwriteDatabaseId,
-      conf.appwriteOrderCollectionId,
-      [Query.equal("sellerId", sellerId)]
-    );
-    return res.documents;
-  } catch (error) {
-    console.log("Appwrite service :: getOrdersBySeller :: error", error);
-    return [];
+  async getOrdersBySeller(sellerId) {
+    try {
+        return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteOrderCollectionId,
+        [Query.equal("sellerId", sellerId)]
+      );
+    } catch (error) {
+      console.log("Appwrite service :: getOrdersBySeller :: error", error);
+      return [];
+    }
   }
-}
-
 
   async getListingsBySeller(sellerId) {
     try {
@@ -298,13 +336,12 @@ async getOrdersBySeller(sellerId) {
         conf.appwriteDatabaseId,
         conf.appwriteCollectionId,
         [Query.equal("userId", sellerId)]
-      )
+      );
     } catch (error) {
       console.error("Error fetching listings by seller:", error);
       throw error;
     }
   }
-
 
   async saveUserData(userId, userData) {
     try {
@@ -344,156 +381,149 @@ async getOrdersBySeller(sellerId) {
     }
   }
 
- async updateUserData(documentId, updatedData) {
-  try {
-    return await this.databases.updateDocument(
-      conf.appwriteDatabaseId,
-      conf.appwriteUserCollectionId,
-      documentId,
-      updatedData
-    );
-  } catch (error) {
-    console.error("Error updating user data:", error);
-    throw error;
-  }
-}
-
-async updateComplaintStatus(complaintId, status){
-  try{
-  return await this.databases.updateDocument(
-    conf.appwriteDatabaseId,
-    conf.appwriteComplaintsCollectionId,
-    complaintId,
-    {status}
-  )
-  } catch(error) {
+  async updateUserData(documentId, updatedData) {
+    try {
+      return await this.databases.updateDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteUserCollectionId,
+        documentId,
+        updatedData
+      );
+    } catch (error) {
+      console.error("Error updating user data:", error);
       throw error;
-  }
-}
-
-deleteComplaint(complaintId) {
-  try{
-  return this.databases.deleteDocument(
-    conf.appwriteDatabaseId,
-    conf.appwriteComplaintsCollectionId,
-    complaintId
-  );
-} catch(error){
-    throw error;
-}
-}
-
-async getUserDocumentByUserId(userId) {
-  try {
-    const result = await this.databases.listDocuments(
-      conf.appwriteDatabaseId,
-      conf.appwriteUserCollectionId,
-      [Query.equal("userId", userId)]
-    );
-
-    if (result.total > 0) {
-      return result.documents[0]; // First matching document
-    } else {
-      throw new Error("User document not found.");
     }
-  } catch (error) {
-    console.error("Error fetching user document:", error);
-    throw error;
   }
-}
 
-async getUserRole(userId) {
-  try {
-    const userDoc = await this.databases.listDocuments(
-      conf.appwriteDatabaseId,
-      conf.appwriteUserCollectionId,
-      [Query.equal("userId", userId)]
-    );
-    return userDoc.total > 0 ? userDoc.documents[0].role : "buyer"; // Default to "buyer" if no role found
-     
-  } catch (error) {
-    console.error("Error fetching user role:", error);
-    throw error;
-    
-  }
-}
-
-// In appwrite/config.js or wherever your appwriteService is
-async getUserById(userId) {
-  return this.databases.listDocuments(
-    conf.appwriteDatabaseId,
-    conf.appwriteUserCollectionId,
-    [Query.equal("userId", userId)]
-  ).then(res => res.documents[0]);
-}
-
-async getAllUsers() {
-  try {
-    return await this.databases.listDocuments(
-      conf.appwriteDatabaseId,
-      conf.appwriteUserCollectionId,
-      [Query.limit(100),
-        Query.orderDesc("$createdAt")
-      ],
-      
-    );
-  } catch (error) {
-    console.error("Error fetching all users:", error);
-    throw error;
-  }
-}
-
-async getAllOrders() {
-  try {
-    return await this.databases.listDocuments(
-      conf.appwriteDatabaseId,
-      conf.appwriteOrderCollectionId
-    );
-  } catch (error) {
-    console.error("Error fetching all orders:", error);
-    throw error;
-  }
-}
-
-async updateUser(userId, data){
-  try {
-    return await this.databases.updateDocument(
-      conf.appwriteDatabaseId,
-      conf.appwriteUserCollectionId,
-      userId,
-      data
-    )
-  } catch (error) {
+  async updateComplaintStatus(complaintId, status) {
+    try {
+      return await this.databases.updateDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteComplaintsCollectionId,
+        complaintId,
+        { status }
+      );
+    } catch (error) {
       throw error;
+    }
   }
-}
 
-async getListingByAllSeller(){
-  try {
-    return await this.databases.listDocuments(
-      conf.appwriteDatabaseId,
-      conf.appwriteCollectionId
-    )
-  } catch (error) {
-    console.error("Error fetching listings by all sellers:", error);
-    throw error;
+  deleteComplaint(complaintId) {
+    try {
+      return this.databases.deleteDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteComplaintsCollectionId,
+        complaintId
+      );
+    } catch (error) {
+      throw error;
+    }
   }
-}
 
+  async getUserDocumentByUserId(userId) {
+    try {
+      const result = await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteUserCollectionId,
+        [Query.equal("userId", userId)]
+      );
 
-async getFilteredPosts(queries) {
-  try {
-    return await this.databases.listDocuments(
-      conf.appwriteDatabaseId,
-      conf.appwriteCollectionId,
-      queries
-    );
-  } catch (error) {
-    console.error("Error fetching filtered posts:", error);
-    throw error;
+      if (result.total > 0) {
+        return result.documents[0]; // First matching document
+      } else {
+        throw new Error("User document not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching user document:", error);
+      throw error;
+    }
   }
-}
 
+  async getUserRole(userId) {
+    try {
+      const userDoc = await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteUserCollectionId,
+        [Query.equal("userId", userId)]
+      );
+      return userDoc.total > 0 ? userDoc.documents[0].role : "buyer"; // Default to "buyer" if no role found
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      throw error;
+    }
+  }
+
+  // In appwrite/config.js or wherever your appwriteService is
+  async getUserById(userId) {
+    return this.databases
+      .listDocuments(conf.appwriteDatabaseId, conf.appwriteUserCollectionId, [
+        Query.equal("userId", userId),
+      ])
+      .then((res) => res.documents[0]);
+  }
+
+  async getAllUsers() {
+    try {
+      return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteUserCollectionId,
+        [Query.limit(100), Query.orderDesc("$createdAt")]
+      );
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+      throw error;
+    }
+  }
+
+  async getAllOrders() {
+    try {
+      return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteOrderCollectionId
+      );
+    } catch (error) {
+      console.error("Error fetching all orders:", error);
+      throw error;
+    }
+  }
+
+  async updateUser(userId, data) {
+    try {
+      return await this.databases.updateDocument(
+        conf.appwriteDatabaseId,
+        conf.appwriteUserCollectionId,
+        userId,
+        data
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getListingByAllSeller() {
+    try {
+      return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteCollectionId
+      );
+    } catch (error) {
+      console.error("Error fetching listings by all sellers:", error);
+      throw error;
+    }
+  }
+
+  async getFilteredPosts(queries) {
+    try {
+      return await this.databases.listDocuments(
+        conf.appwriteDatabaseId,
+        conf.appwriteCollectionId,
+        queries
+      );
+    } catch (error) {
+      console.error("Error fetching filtered posts:", error);
+      throw error;
+    }
+  }
 
   //file upload method
 
@@ -528,18 +558,15 @@ async getFilteredPosts(queries) {
   //     )
   // }
 
+  //   getFileView(fileId) {
+  //     if (!fileId) return null;
+  //     return this.bucket.getFileView(conf.appwriteBucketId, fileId).href;
+  // }
 
-//   getFileView(fileId) {
-//     if (!fileId) return null;
-//     return this.bucket.getFileView(conf.appwriteBucketId, fileId).href;
-// }
-
-getFileURL(fileId) {
-  if (!fileId) return null;
-  return this.bucket.getFileView(conf.appwriteBucketId, fileId);
-}
-
-
+  getFileURL(fileId) {
+    if (!fileId) return null;
+    return this.bucket.getFileView(conf.appwriteBucketId, fileId);
+  }
 }
 
 const service = new Service();
