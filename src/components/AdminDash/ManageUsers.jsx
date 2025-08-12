@@ -59,9 +59,9 @@ function ManageUsers() {
         />
       </div>
 
-      <div className="grid grid-cols-6 gap-4 bg-gray-300 text-gray-800 font-semibold px-4 py-4 ">
+      <div className="grid grid-cols-6 gap-6 bg-gray-300 text-gray-800 font-semibold px-4 py-4 ">
         <p className="font-bold">User</p>
-        <p className="font-bold">Name</p>
+        <p className="font-bold ml-7">Name</p>
         <p className="font-bold">Email</p>
         <p className="font-bold">Role</p>
         <p className="flex items-center gap-1">
@@ -81,23 +81,11 @@ function ManageUsers() {
           {filteredResults.map((user) => (
             <div
               key={user.$id}
-              className="grid grid-cols-6 gap-4 border border-green-200 bg-white shadow-sm px-4 py-3"
+              className="grid grid-cols-6 gap-6 border border-green-200 bg-white shadow-sm px-4 py-3"
             >
-              {/*  <div
-            //   key={user.$id}
-            //   onClick={() => {
-            //     setSelectedUser(user);
-            //     setEditForm({
-            //       name: user.name || "",
-            //       email: user.email || "",
-            //       role: user.role || "",
-            //       status: user.status || "",
-            //     });
-            //   }}
-            //   className="grid grid-cols-6 gap-4 border border-green-200 cursor-pointer hover:bg-gray-100 transition px-4 py-3"
-            // > */}
+              
               <p className="text-gray-600">{user.$id}</p>
-              <p className="text-gray-600">{user.name}</p>
+              <p className="text-gray-600 ml-7">{user.name}</p>
               <p className="text-gray-600">{user.email}</p>
               <p className="text-gray-600">{user.role}</p>
               <p className="text-gray-600">
@@ -118,119 +106,42 @@ function ManageUsers() {
 
                 <button
                   onClick={async () => {
-                    const newStatus = user.status === "active" ? "inactive" : "active";
+                    let newStatus;
+
+                    if (user.status === "pending") {
+                      newStatus = "active"; // approving seller
+                    } else if (user.status === "active") {
+                      newStatus = "inactive"; // blocking seller
+                    } else {
+                      newStatus = "active"; // unblocking seller
+                    }
+
                     try {
-                      await appwriteService.updateUser(user.$id, {status: newStatus,});
-                      fetchUsers(); // refresh list
+                      await appwriteService.updateUser(user.$id, {
+                        status: newStatus,
+                      });
+                      fetchUsers(); // refresh list after update
                     } catch (error) {
                       console.error("Failed to update status:", error);
                     }
                   }}
                   className={`text-xs px-3 py-1 rounded ${
                     user.status === "active"
-                      ? "bg-red-500 text-white hover:bg-red-600"
-                      : "bg-green-500 text-white hover:bg-green-600"
+                      ? "bg-red-500 text-white hover:bg-red-600" // Block button
+                      : user.status === "pending"
+                      ? "bg-green-500 text-white hover:bg-green-600" // Approve button
+                      : "bg-green-500 text-white hover:bg-green-600" // Unblock button
                   }`}
                 >
-                  {user.status === "active" ? "Block" : "Unblock"}
+                  {user.status === "active"
+                    ? "Block"
+                    : user.status === "pending"
+                    ? "Approve"
+                    : "Unblock"}
                 </button>
               </div>
             </div>
           ))}
-
-          {/* Edit User Form */}
-
-          {/* {selectedUser && (
-                <div className="mt-8 p-6 border rounded-md bg-white shadow-md max-w-xl">
-                  <h2 className="text-xl font-semibold mb-4">
-                    Edit User: {selectedUser.name}
-                  </h2>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium">Name</label>
-                      <input
-                        type="text"
-                        value={editForm.name}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, name: e.target.value })
-                        }
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium">Email</label>
-                      <input
-                        type="email"
-                        value={editForm.email}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, email: e.target.value })
-                        }
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium">Role</label>
-                      <select
-                        value={editForm.role}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, role: e.target.value })
-                        }
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      >
-                        <option value="buyer">Buyer</option>
-                        <option value="seller">Seller</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium">
-                        Status
-                      </label>
-                      <select
-                        value={editForm.status}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, status: e.target.value })
-                        }
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex justify-end gap-4">
-                    <button
-                      onClick={() => setSelectedUser(null)}
-                      className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      onClick={async () => {
-                        try {
-                          await appwriteService.updateUser(
-                            selectedUser.$id,
-                            editForm
-                          );
-                          fetchUsers(); // refresh user list
-                          setSelectedUser(null);
-                        } catch (err) {
-                          console.error("Error updating user:", err);
-                        }
-                      }}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                    >
-                      Save Changes
-                    </button>
-                  </div>
-                </div>
-              )} */}
         </div>
       )}
     </div>

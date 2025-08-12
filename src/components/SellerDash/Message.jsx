@@ -18,7 +18,7 @@ const Message = () => {
       const session = await authService.getCurrentUser()
       const userDoc = await appwriteService.getUserById(session.$id)
 
-       if(userDoc.status !== 'active'){
+       if(userDoc.status === 'inactive'){
       alert("blocked user can't seen the messages")
       return;
     }

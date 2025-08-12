@@ -7,7 +7,7 @@ import {
   PostCard,
   SearchBar,
   Filter,
-  Testimonial
+  Testimonial,
 } from "../components";
 import { Link } from "react-router-dom";
 
@@ -126,8 +126,7 @@ function Home() {
         </div>
       </Container>
 
-          <Testimonial />
-
+      <Testimonial />
     </div>
   );
 }

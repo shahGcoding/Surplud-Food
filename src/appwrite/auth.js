@@ -37,7 +37,7 @@ export class AuthService {
           name,
           email,
           role,
-          status: "active",
+          status: role === "seller" ? "pending" : "active",
           ...userPrefs
         };
         await config.saveUserData(userId, userData);

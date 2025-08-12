@@ -4,6 +4,7 @@ import { BsHouse, BsList, BsPlus, BsCart , BsExclamationCircleFill, BsCurrencyDo
 import { LogoutBtn } from '../index';
 import { useSelector } from "react-redux";
 import appwriteService from "../../appwrite/config";
+import authService from "../../appwrite/auth";
 
 const SellerLayout = () => {
   const authStatus = useSelector((state) => state.auth.status);
@@ -12,6 +13,24 @@ const SellerLayout = () => {
   const sellerId = userData?.$id;
 
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [sellerStatus, setSellerStatus] = useState(null);
+
+  useEffect(() => {
+    const fetchSellerStatus = async () => {
+        try {
+          if(!sellerId) return;
+          const res = await authService.getUserData(sellerId);
+          setSellerStatus(res?.sellerStatus || res?.status || "active");
+        } catch (error) {
+          throw error;
+        } finally {
+          setIsLoading(false)
+        }
+    }
+
+    fetchSellerStatus();
+  }, [sellerId])
 
   useEffect(() => {
 
@@ -46,6 +65,31 @@ const SellerLayout = () => {
     `flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
       isActive ? "bg-green-600 text-white" : "text-gray-700 hover:bg-green-100 hover:text-green-700"
     }`;
+
+     if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-600">Loading seller panel...</p>
+      </div>
+    );
+  }
+
+   if (sellerStatus === "pending") {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-yellow-50 p-6">
+        <h1 className="text-2xl font-bold text-yellow-700 mb-4">Account Under Review</h1>
+        <p className="text-gray-700 text-center max-w-lg">
+          Your seller account is currently under review by our admin team. Once verified, you'll gain full access to your dashboard.
+        </p>
+        {authStatus && (
+          <div className="mt-6">
+            <LogoutBtn />
+          </div>
+        )}
+      </div>
+    );
+  }
+
 
   return (
     <div className="flex h-screen">

@@ -14,28 +14,6 @@ function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-// useEffect(() => {
-//   authService
-//     .getCurrentUser()
-//     .then((userData) => {
-//       if (userData) {
-//         const userRole = userData.prefs?.role || "buyer"; // Default to "buyer" if role is not set
-//         userData.role = userRole; // Set role in userData for consistency
-//         dispatch(login(userData));
-//         localStorage.setItem("role", userRole); // Store role in local storage
-//         localStorage.setItem("userId", userData.$id);
-
-//         // Redirect based on role
-//         if (userData.prefs?.role === "admin") navigate("/admin-dashboard");
-//             else if (userData.prefs?.role === "seller") navigate("/seller-dashboard");
-//             else navigate("/");
-//       } else {
-//         dispatch(logout());
-//       }
-//     })
-//     .finally(() => setLoading(false));
-// }, [navigate]);
-
     useEffect(() => {
     const fetchAndStoreUser = async () => {
       try {

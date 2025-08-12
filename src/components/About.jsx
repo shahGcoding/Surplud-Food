@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 
 function About() {
     return (
@@ -60,9 +61,11 @@ function About() {
               Whether you're a restaurant looking to sell surplus food or a buyer looking for affordable meals, 
               we invite you to be a part of this sustainable movement.
             </p>
+            <Link to={"/signup"}>
             <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
               Get Started
             </button>
+            </Link>
           </div>
         </div>
       );

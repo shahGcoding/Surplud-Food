@@ -1,137 +1,7 @@
-// import React, { useState, useEffect } from "react";
-// import appwriteService from "../../appwrite/config";
-// import { useSelector } from "react-redux";
-
-// function AdminComission() {
-//   const [commission, setCommission] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [sellers, setSellers] = useState([]);
-//   const [selectedSeller, setSelectedSeller] = useState("");
-
-//   const userData = useSelector((state) => state.auth.status);
-//   const sellerId = userData?.$id;
-
-//   const fetchCommissions = async () => {
-//     setLoading(true);
-//     try {
-//       const session = await appwriteService.getAllOrders();
-//       const orders = session?.documents || [];
-
-//       //Extract seller for filter
-//       const sellerList = [
-//         ...new Set(orders.map((o) => o.sellerId)),
-//       ];
-//       setSellers(sellerList);
-
-//       const deliveredOrders = orders.filter(
-//         (o) => o.status === "Delivered" && o.commission
-//       );
-//       setCommission(deliveredOrders);
-
-//     } catch (error) {
-//       throw error;
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchCommissions();
-//   }, []);
-
-//   const filteredData = selectedSeller
-//     ? commission.filter((o) => o.sellerId === selectedSeller)
-//     : commission;
-
-//   const totalCommission = filteredData.reduce(
-//     (sum, c) => sum + (c.commissionAmount || 0),
-//     0
-//   );
-
-//   return (
-//     <div className="p-6">
-//       <h1 className="text-2xl font-bold mb-4">Admin Commission Management</h1>
-
-//       {loading ? (
-//         <p>Loading commissions...</p>
-//       ) : (
-//         <>
-//           <div className="flex items-center mb-4 gap-4">
-//             <label>Filter by Seller</label>
-//             <select
-//               value={selectedSeller}
-//               onChange={(e) => setSelectedSeller(e.target.value)}
-//               className="border px-3 py-2 rounded-md focus:border-green-300"
-//             >
-//               <option value="">All sellers</option>
-//               {sellers.map((id) => (
-//                 <option key={id} value={id}>
-//                   {id}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           <div className="mb-4 font-bold text-lg">
-//             Total Commission: Rs. {totalCommission.toFixed(2)}
-//           </div>
-
-//           {/* Commission Table */}
-//           <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-//             <table className="min-w-full text-sm text-gray-700">
-//               <thead className="bg-gray-100">
-//                 <tr>
-//                   <th className="py-2 px-4">Order ID</th>
-//                   <th className="py-2 px-4">Seller ID</th>
-//                   <th className="py-2 px-4">Total Amount</th>
-//                   <th className="py-2 px-4">Commission %</th>
-//                   <th className="py-2 px-4">Commission Amount</th>
-//                   <th className="py-2 px-4">Paid Status</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {filteredData.length > 0 ? (
-//                   filteredData.map((order) => (
-//                     <tr key={order.$id} className="border-b">
-//                       <td className="py-2 px-4">{order.$id}</td>
-//                       <td className="py-2 px-4">{order.sellerId}</td>
-//                       <td className="py-2 px-4">Rs. {order.totalAmount}</td>
-//                       <td className="py-2 px-4">10%</td>
-//                       <td className="py-2 px-4 text-green-600 font-semibold">
-//                         Rs. {order.comission}
-//                       </td>
-//                       <td className="py-2 px-4">
-//                         {order.comissionPaid === "true" ? (
-//                           <span className="text-green-500 font-bold">Paid</span>
-//                         ) : (
-//                           <span className="text-red-500 font-bold">Unpaid</span>
-//                         )}
-//                       </td>
-//                     </tr>
-//                   ))
-//                 ) : (
-//                   <tr>
-//                     <td colSpan="6" className="py-4 text-center text-gray-500">
-//                       No commission data found.
-//                     </td>
-//                   </tr>
-//                 )}
-//               </tbody>
-//             </table>
-//           </div>
-//         </>
-//       )}
-
-//     </div>
-//   );
-// }
-
-// export default AdminComission;
-
 import React, { useState, useEffect } from "react";
 import appwriteService from "../../appwrite/config";
 
-function AdminCommission() {
+function AdminCommission() {  
   const [orders, setOrders] = useState([]);
   const [sellers, setSellers] = useState([]);
 
@@ -145,11 +15,12 @@ function AdminCommission() {
     const fetchOrders = async () => {
       try {
         const res = await appwriteService.getAllOrders();
-        setOrders(res.documents);
+        const resDoc = res.documents || [];
+        setOrders(resDoc);
 
         // Extract unique seller IDs from orders
         const uniqueSellerIds = [
-          ...new Set(res.documents.map((order) => order.sellerId)),
+          ...new Set(resDoc.map((order) => order.sellerId)),
         ];
 
         // Fetch sellers' emails
@@ -207,7 +78,7 @@ function AdminCommission() {
 
       {/* Dropdown for sellers */}
       <select
-        className="border-gray-400 border p-2 rounded mb-4 focus:border-green-400"
+        className="border-gray-400 border w-55 p-2 rounded mb-4 focus:border-green-400"
         value={selectedSeller}
         onChange={(e) => setSelectedSeller(e.target.value)}
       >
@@ -222,8 +93,9 @@ function AdminCommission() {
       {/* for total commision */}
       {selectedSeller && (
         <div className="mb-4 font-semibold text-lg">
-          Total Commission: Rs. {totalCommission.toFixed(2)} | Paid Commision: {paidCommission.toFixed(2)}
-          Rs.
+          Total Commission: Rs. {totalCommission.toFixed(2)} | Paid Commision:Rs. {paidCommission.toFixed(2)} |
+          Total Orders: {filteredOrders.length}
+           
         </div>
       )}
 
@@ -234,9 +106,11 @@ function AdminCommission() {
             <tr>
               <th className="border p-2">Order ID</th>
               <th className="border p-2">Seller Name</th>
-              <th className="border p-2">Amount</th>
+              <th className="border p-2">Order Amount</th>
+              <th className="border p-2">Order Status</th>
               <th className="border p-2">Commission</th>
               <th className="border p-2">Paid status</th>
+              
             </tr>
           </thead>
           <tbody>
@@ -245,6 +119,15 @@ function AdminCommission() {
                 <td className="border p-2">{order.$id}</td>
                 <td className="border p-2">{order.sellerName}</td>
                 <td className="border p-2">{order.totalPrice}</td>
+                {order.status === "Pending" ? (
+                  <td className="border p-2 text-yellow-600">{order.status}</td>
+                ) : order.status === "Accepted" ? (
+                  <td className="border p-2 text-blue-600">{order.status}</td>
+                ) : order.status === "Delivered" ? (
+                  <td className="border p-2 text-green-600">{order.status}</td>
+                ) : (
+                  <td className="border p-2 text-red-600">{order.status}</td>
+                )}
                 <td className="border p-2">{order.comission}</td>
                 <td className="border p-2">
                   {order.comissionPaid === "true" ? (

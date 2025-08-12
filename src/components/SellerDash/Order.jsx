@@ -11,7 +11,7 @@ export default function PlaceOrder() {
       const session = await authService.getCurrentUser();
       const userDoc = await appwriteService.getUserById(session.$id);
       try {
-        if (userDoc.status !== "active") {
+        if (userDoc.status === "inactive") {
           return alert("Blocked sellers cannot accept or reject orders.");
         }
         const response = await appwriteService.getOrdersBySellerId(

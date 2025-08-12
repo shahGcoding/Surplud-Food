@@ -54,7 +54,8 @@ const Dash = () => {
       const listing = await appwriteService.getPostsByUser(sellerId);
       setListings(listing?.documents?.length || 0);
 
-      const orders = await appwriteService.getOrdersBySeller(sellerId);
+      const orderRes = await appwriteService.getOrdersBySeller(sellerId);
+      const orders = orderRes?.documents || [];
 
       const pending = orders.filter((o) => o.status === "Pending").length;
       setPendingOrders(pending);
@@ -110,7 +111,7 @@ const Dash = () => {
     <main className="p-6 space-y-8 bg-gray-50 min-h-screen">
       <div className="text-3xl font-bold text-gray-800"> Dashboard</div>
 
-      {users.status !== "active" && (
+      {users.status === "inactive" && (
         <div className="bg-red-100 text-red-700 p-2 rounded">
           Your account is currently blocked. Limited access.
         </div>
