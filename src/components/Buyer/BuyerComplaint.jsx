@@ -65,7 +65,7 @@ function BuyerComplaint() {
       sellerName: data.sellerName,
       orderId: data.orderId,
       message: data.message,
-      status: "unread",
+      status: "unresolved",
       createdAt: new Date().toISOString(),
     };
 

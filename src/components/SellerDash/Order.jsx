@@ -8,15 +8,14 @@ export default function PlaceOrder() {
   const userData = useSelector((state) => state.auth.userData);
 
   const fetchOrders = async () => {
+    
       const session = await authService.getCurrentUser();
       const userDoc = await appwriteService.getUserById(session.$id);
       try {
         if (userDoc.status === "inactive") {
           return alert("Blocked sellers cannot accept or reject orders.");
         }
-        const response = await appwriteService.getOrdersBySellerId(
-          userData.$id
-        ); // Assuming you have a method to fetch orders by seller ID
+        const response = await appwriteService.getOrdersBySellerId(userData.$id); // Assuming you have a method to fetch orders by seller ID
         setOrders(response.documents || []);
       } catch (error) {
         console.error("Error fetching seller orders:", error);

@@ -16,39 +16,75 @@ export class AuthService {
     this.databases = new Databases(this.client);
   }
 
-  async createAccount({ email, password, name, role, businessName, businessAddress, phone }) {
-    try {
-      const userAccount = await this.account.create(ID.unique(), email, password, name);
-      console.log("User Created:", userAccount);
+  // async createAccount({ email, password, name, role, businessName, businessAddress, phone }) {
+  //   try {
+  //     const userAccount = await this.account.create(ID.unique(), email, password, name);
+  //     console.log("User Created:", userAccount);
 
-      if (userAccount) {
-        await this.login({ email, password });
+  //     if (userAccount) {
+  //       await this.login({ email, password });
 
-        const userPrefs = {
-          role,
-          businessName: role === "seller" ? businessName : "",
-          businessAddress: role === "seller" ? businessAddress : "",
-          phone: role === "seller" ? phone : ""
-        };
-        await this.account.updatePrefs(userPrefs);
+  //       const userPrefs = {
+  //         role,
+  //         businessName: role === "seller" ? businessName : "",
+  //         businessAddress: role === "seller" ? businessAddress : "",
+  //         phone: role === "seller" ? phone : ""
+  //       };
+  //       await this.account.updatePrefs(userPrefs);
 
-        const userId = userAccount.$id;
-        const userData = {
-          name,
-          email,
-          role,
-          status: role === "seller" ? "pending" : "active",
-          ...userPrefs
-        };
-        await config.saveUserData(userId, userData);
+  //       const userId = userAccount.$id;
+  //       const userData = {
+  //         name,
+  //         email,
+  //         role,
+  //         status: "active",
+  //         ...userPrefs
+  //       };
+  //       await config.saveUserData(userId, userData);
 
-        return userAccount;
-      }
-    } catch (error) {
-      console.error("Signup Error:", error);
-      throw error;
+  //       return userAccount;
+  //     }
+  //   } catch (error) {
+  //     console.error("Signup Error:", error);
+  //     throw error;
+  //   }
+  // }
+
+  async createAccount({ email, password, name, role, businessName, businessAddress, phone, latitude, longitude }) {
+  try {
+    const userAccount = await this.account.create(ID.unique(), email, password, name);
+
+    if (userAccount) {
+      await this.login({ email, password });
+
+      const userPrefs = {
+        role,
+        businessName: role === "seller" ? businessName : "",
+        businessAddress: role === "seller" ? businessAddress : "",
+        phone: role === "seller" ? phone : "",
+        latitude,
+        longitude
+      };
+      await this.account.updatePrefs(userPrefs);
+
+      const userId = userAccount.$id;
+      const userData = {
+        name,
+        email,
+        role,
+        status: "pending",
+        ...userPrefs
+      };
+      await config.saveUserData(userId, userData);
+
+      return userAccount;
     }
+  } catch (error) {
+    console.error("Signup Error:", error);
+    throw error;
   }
+}
+
 
   async getUserData(userId) {
     try {

@@ -4,6 +4,8 @@ import { BsSearch, BsArrowBarDown } from "react-icons/bs";
 import { Input } from "../../components";
 
 function ManageUsers() {
+
+  
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -83,7 +85,7 @@ function ManageUsers() {
               key={user.$id}
               className="grid grid-cols-6 gap-6 border border-green-200 bg-white shadow-sm px-4 py-3"
             >
-              
+
               <p className="text-gray-600">{user.$id}</p>
               <p className="text-gray-600 ml-7">{user.name}</p>
               <p className="text-gray-600">{user.email}</p>

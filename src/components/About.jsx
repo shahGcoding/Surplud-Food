@@ -62,7 +62,7 @@ function About() {
               we invite you to be a part of this sustainable movement.
             </p>
             <Link to={"/signup"}>
-            <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
+            <button className="mt-4 bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-300">
               Get Started
             </button>
             </Link>

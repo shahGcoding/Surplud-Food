@@ -16,32 +16,78 @@ function Signup() {
   
 
 
-  const create = async (data) => {
-    setError("");
-    try {
+//   const create = async (data) => {
+//     setError("");
+//     try {
+//         const userData = await authService.createAccount({ 
+//             email: data.email, 
+//             password: data.password, 
+//             name: data.name, 
+//             role: data.role, // Ensure role is passed
+//             businessName: data.businessName || "",
+//             businessAddress: data.businessAddress || "",
+//             phone: data.phone || "",
+//         });
+
+//         if (userData) {
+//             dispatch(login(userData)); 
+
+//             setTimeout(() => {
+//               if (userData.role === "admin") navigate("/admin-dashboard");
+//               else if (userData.role === "seller") navigate("/seller-dashboard");
+//               else navigate("/");
+//             }, 500);
+//         }
+//     } catch (error) {
+//         setError(error.message);
+//     }
+// };
+
+const create = async (data) => {
+  setError("");
+
+  // Step 1: Get location first
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      try {
         const userData = await authService.createAccount({ 
-            email: data.email, 
-            password: data.password, 
-            name: data.name, 
-            role: data.role, // Ensure role is passed
-            businessName: data.businessName || "",
-            businessAddress: data.businessAddress || "",
-            phone: data.phone || "",
+          email: data.email, 
+          password: data.password, 
+          name: data.name, 
+          role: data.role,
+          businessName: data.businessName || "",
+          businessAddress: data.businessAddress || "",
+          phone: data.phone || "",
+          latitude: lat,
+          longitude: lng
         });
 
         if (userData) {
-            dispatch(login(userData)); 
+          dispatch(login(userData)); 
 
-            setTimeout(() => {
-              if (userData.role === "admin") navigate("/admin-dashboard");
-              else if (userData.role === "seller") navigate("/seller-dashboard");
-              else navigate("/");
-            }, 500);
+          setTimeout(() => {
+            if (userData.role === "admin") navigate("/admin-dashboard");
+            else if (userData.role === "seller") navigate("/seller-dashboard"); // change to seller dashboard if needed
+            else navigate("/");
+          }, 500);
         }
-    } catch (error) {
+      } catch (error) {
         setError(error.message);
+      }
+    },
+    (error) => {
+      console.error("Error getting location", error);
+      setError("Location access is required for signup.");
     }
+  );
 };
+
+
+  
+
 
 
   return (

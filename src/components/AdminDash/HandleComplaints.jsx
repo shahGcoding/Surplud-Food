@@ -23,7 +23,7 @@ function HandleComplaints() {
 
   const handleMarkResolved = async (complaintId) => {
     try {
-      await appwriteService.updateComplaintStatus(complaintId, "resolved");
+      await appwriteService.updateComplaintStatus(complaintId, "Resolved");
       alert("complaint marked as resolved");
       fetchComplaints(); // for refresh
     } catch (error) {
@@ -46,7 +46,7 @@ function HandleComplaints() {
   //for status color changings
   const statusColor = (status) => {
     switch(status){
-      case "resolved":
+      case "Resolved":
         return "text-green-500";
       default: 
         return "text-yellow-500";   
@@ -54,7 +54,7 @@ function HandleComplaints() {
   }
 
 
-  const resolved = complaints.filter((c) => c.status === "resolved").length;
+  const resolved = complaints.filter((c) => c.status === "Resolved").length;
 
   return (
     <div className="">
@@ -113,7 +113,7 @@ function HandleComplaints() {
               </p>
 
               <div className="flex gap-4 mt-3">
-                {complaint.status !== "resolved" && (
+                {complaint.status !== "Resolved" && (
                   <Button
                     onClick={() => handleMarkResolved(complaint.$id)}
                     className="bg-green-600 text-white"
@@ -121,7 +121,7 @@ function HandleComplaints() {
                     Mark Resolved
                   </Button>
                 )}
-                { complaint.status === "resolved" &&
+                { complaint.status === "Resolved" &&
                 <Button
                   onClick={() => handleDelete(complaint.$id)}
                   className="bg-red-500 hover:cursor-pointer hover:scale-110 hover:bg-red-700 text-white "

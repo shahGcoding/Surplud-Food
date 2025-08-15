@@ -8,9 +8,11 @@ import { useSelector } from "react-redux";
 export default function Post() {
   const [post, setPost] = useState(null);
   const [seller, setSeller] = useState(null);
-
   const [placingOrder, setPlacingOrder] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [deliveryCharge, setDeliveryCharge] = useState(0);
+  const [deliveryMethod, setDeliveryMethod] = useState("self-pickup");
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -27,15 +29,77 @@ export default function Post() {
       appwriteService.getPost(slug).then((post) => {
         if (post) {
           setPost(post);
-          appwriteService
-            .getUserById(post.userId)
-            .then((user) => setSeller(user));
+          appwriteService.getUserById(post.userId).then((user) => {
+            setSeller(user);
+            if (userData?.role === "buyer" && deliveryMethod === "online-delivery") {
+              calculateDeliveryCharges(user);
+            }
+          });
         } else navigate("/");
       });
     } else {
       navigate("/");
     }
-  }, [slug, navigate]);
+  }, [slug, navigate, userData, deliveryMethod]);
+
+  const calculateDeliveryCharges = async (sellerData) => {
+    try {
+      const buyerDoc = await appwriteService.getUserById(userData.$id);
+
+      const buyerLat = parseFloat(buyerDoc.latitude);
+      const buyerLng = parseFloat(buyerDoc.longitude);
+      const sellerLat = parseFloat(sellerData.latitude);
+      const sellerLng = parseFloat(sellerData.longitude);
+
+      if (
+        !isNaN(buyerLat) &&
+        !isNaN(buyerLng) &&
+        !isNaN(sellerLat) &&
+        !isNaN(sellerLng)
+      ) {
+        const distance = getDistanceFromLatLonInKm(
+          buyerLat,
+          buyerLng,
+          sellerLat,
+          sellerLng
+        );
+        const charge = distance * 50; // Rs.10 per km
+        setDeliveryCharge(Number(charge.toFixed(2)));
+      } else {
+        console.warn("Missing lat/lng for delivery charge calculation");
+        setDeliveryCharge(0.00);
+      }
+    } catch (error) {
+      console.error("Error calculating delivery charges:", error);
+    }
+  };
+
+  const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of Earth in km
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) *
+        Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  const deg2rad = (deg) => deg * (Math.PI / 180);
+
+  useEffect(() => {
+    if (post) {
+      let basePrice = post.price * selectedQuantity;
+      if (deliveryMethod === "online-delivery") {
+        setTotalPrice(basePrice + deliveryCharge);
+      } else {
+        setTotalPrice(basePrice);
+      }
+    }
+  }, [post, selectedQuantity, deliveryCharge, deliveryMethod]);
 
   const deletePost = () => {
     appwriteService.deletePost(post.$id).then((status) => {
@@ -54,10 +118,14 @@ export default function Post() {
 
     const buyerDoc = await appwriteService.getUserById(userData.$id);
 
-    // Check if buyer is blocked
     if (buyerDoc.status !== "active") {
       alert("You are blocked. You cannot place orders.");
       setPlacingOrder(false);
+      return;
+    }
+
+    if (deliveryMethod === "online-delivery" && !deliveryCharge) {
+      alert("Unable to calculate delivery charges. Please update location.");
       return;
     }
 
@@ -66,8 +134,8 @@ export default function Post() {
     try {
       const orderData = {
         foodTitle: post.title,
-        quantity: post.quantity,
-        totalPrice: post.price,
+        quantity: selectedQuantity,
+        totalPrice: totalPrice,
         paymentMethod: "cash on delivery",
         buyerName: userData.name || userData.email || "Unknown Buyer",
         orderDate: new Date().toISOString(),
@@ -75,6 +143,8 @@ export default function Post() {
         sellerName: seller?.name || seller?.email || "Unknown Seller",
         buyerId: userData.$id,
         status: "Pending",
+        deliveryMethod: deliveryMethod,
+        deliveryCharge: Number( deliveryMethod === "online-delivery" ? deliveryCharge : 0 ),
       };
 
       const response = await appwriteService.postOrder(orderData);
@@ -99,7 +169,6 @@ export default function Post() {
             alt={post.title}
             className="w-full h-full object-cover border-2 rounded-2xl"
           />
-
           {canModify && (
             <div className="absolute top-4 right-4 flex gap-2">
               {userData?.role === "seller" && (
@@ -119,36 +188,57 @@ export default function Post() {
           )}
         </div>
 
-        {/* Content Section */}
         <div className="md:w-1/2 w-full p-6 space-y-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">{post.title}</h1>
             <div className="mt-2 text-gray-600">{parse(post.content)}</div>
             <p className="text-lg font-semibold text-green-700 mt-4">
-              Price: Rs. {post.price}
+              Price: Rs. {post.price} per Kg
             </p>
             <p className="text-lg text-gray-700">
-              Quantity: {post.quantity} Kg
+              Quantity Available: {post.quantity} Kg
             </p>
+            <p className="text-lg text-blue-700">
+              Delivery Charges: Rs.{" "}
+              {deliveryMethod === "online-delivery" ? deliveryCharge : 0}
+            </p>
+            {userData?.role === "buyer" && (
+              <p className="text-lg font-bold text-red-700">
+                Total Price: Rs. {totalPrice}
+              </p>
+            )}
           </div>
 
           {userData?.role === "buyer" && (
-            <div className="flex items-center gap-3">
-              <label htmlFor="quantity" className="text-sm font-semibold">
-                Select Quantity:
-              </label>
-              <Input
-                type="number"
-                min="1"
-                max={post.quantity}
-                value={selectedQuantity}
-                onChange={(e) => setSelectedQuantity(Number(e.target.value))}
-                className="p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+            <>
+              <div className="flex items-center gap-3">
+                <label htmlFor="quantity" className="text-sm font-semibold">
+                  Select Quantity:
+                </label>
+                <Input
+                  type="number"
+                  min="1"
+                  max={post.quantity}
+                  value={selectedQuantity}
+                  onChange={(e) => setSelectedQuantity(Number(e.target.value))}
+                  className="p-2 w-10 focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+
+              <Select
+                options={["online-delivery", "self-pickup"]}
+                label="Select Delivery Method:"
+                value={deliveryMethod}
+                onChange={(e) => {
+                  setDeliveryMethod(e.target.value);
+                  if (e.target.value === "online-delivery" && seller) {
+                    calculateDeliveryCharges(seller);
+                  }
+                }}
               />
-            </div>
+            </>
           )}
 
-          {/* Seller Info */}
           <div className="bg-gray-100 p-4 rounded-md">
             <p className="text-sm font-semibold mb-1">Seller Info:</p>
             <p className="text-sm text-gray-700">Name: {seller?.name}</p>
@@ -157,30 +247,27 @@ export default function Post() {
               Address: {seller?.businessAddress}
             </p>
           </div>
-          
-          {
-            userData?.role === "buyer" && (
-              <Select 
+
+          {userData?.role === "buyer" && (
+            <Select
               options={["cash on delivery"]}
               label="Select payment method : "
               className="mb-4 focus:outline-none focus:ring-2 focus:ring-green-400"
-              />
-            )
-          }
+            />
+          )}
 
-          {/* Place Order Button */}
-          {userData?.role === "buyer" ?  (
+          {userData?.role === "buyer" ? (
             <Button
               onClick={handlePlaceOrder}
               bgColor="bg-green-700"
-              className="hover:bg-green-600 hover:cursor-pointer transition-transform hover:scale-110 ml-64 "
+              className="hover:bg-green-600 hover:cursor-pointer transition-transform hover:scale-110 ml-64"
               disabled={placingOrder}
             >
               {placingOrder ? "Placing Order..." : "Place Order"}
             </Button>
-          ) : userData?.role !== "seller" && userData?.role !== "admin" && (
-            <h1 className="font-bold text-2xl ">Sign in for placing order !</h1>
-          )}
+          ) : userData?.role !== "seller" && userData?.role !== "admin" ? (
+            <h1 className="font-bold text-2xl">Sign in for placing order !</h1>
+          ) : null}
         </div>
       </div>
     </div>

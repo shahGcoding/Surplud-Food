@@ -14,6 +14,7 @@ const SellerLayout = () => {
 
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
   const [sellerStatus, setSellerStatus] = useState(null);
 
   useEffect(() => {
@@ -21,7 +22,7 @@ const SellerLayout = () => {
         try {
           if(!sellerId) return;
           const res = await authService.getUserData(sellerId);
-          setSellerStatus(res?.sellerStatus || res?.status || "active");
+          setSellerStatus(res?.status || "active");
         } catch (error) {
           throw error;
         } finally {
@@ -43,8 +44,6 @@ const SellerLayout = () => {
         const response = await appwriteService.messageFromBuyer(sellerId);
         // const allMessages = response.documents || [];
         const unreadMessages = response.documents.filter((msg) => msg.status === "Unread").length;
-
-        console.log("Unread messages count:", unreadMessages);
 
       setUnreadCount(unreadMessages);
 

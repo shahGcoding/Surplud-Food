@@ -343,43 +343,79 @@ export class Service {
     }
   }
 
+  // async saveUserData(userId, userData) {
+  //   try {
+  //     console.log("Saving User Data:", userData);
+
+  //     // Check if the user already exists
+  //     const existingUsers = await this.databases.listDocuments(
+  //       conf.appwriteDatabaseId,
+  //       conf.appwriteUserCollectionId,
+  //       [Query.equal("userId", userId)]
+  //     );
+
+  //     if (existingUsers.total > 0) {
+  //       console.log("User already exists in the database.");
+  //       return existingUsers.documents[0];
+  //     }
+
+  //     // Create a new user document
+  //     return await this.databases.createDocument(
+  //       conf.appwriteDatabaseId,
+  //       conf.appwriteUserCollectionId,
+  //       ID.unique(),
+  //       {
+  //         userId,
+  //         name: userData.name,
+  //         email: userData.email,
+  //         phone: userData.phone || "",
+  //         role: userData.role || "buyer",
+  //         status: userData.status || "",
+  //         businessName: userData.businessName || "",
+  //         businessAddress: userData.businessAddress || "",
+  //       }
+  //     );
+  //   } catch (error) {
+  //     console.error("Error saving user data:", error);
+  //     throw error;
+  //   }
+  // }
+
   async saveUserData(userId, userData) {
-    try {
-      console.log("Saving User Data:", userData);
+  try {
+    const existingUsers = await this.databases.listDocuments(
+      conf.appwriteDatabaseId,
+      conf.appwriteUserCollectionId,
+      [Query.equal("userId", userId)]
+    );
 
-      // Check if the user already exists
-      const existingUsers = await this.databases.listDocuments(
-        conf.appwriteDatabaseId,
-        conf.appwriteUserCollectionId,
-        [Query.equal("userId", userId)]
-      );
-
-      if (existingUsers.total > 0) {
-        console.log("User already exists in the database.");
-        return existingUsers.documents[0];
-      }
-
-      // Create a new user document
-      return await this.databases.createDocument(
-        conf.appwriteDatabaseId,
-        conf.appwriteUserCollectionId,
-        ID.unique(),
-        {
-          userId,
-          name: userData.name,
-          email: userData.email,
-          phone: userData.phone || "",
-          role: userData.role || "buyer",
-          status: userData.status || "",
-          businessName: userData.businessName || "",
-          businessAddress: userData.businessAddress || "",
-        }
-      );
-    } catch (error) {
-      console.error("Error saving user data:", error);
-      throw error;
+    if (existingUsers.total > 0) {
+      return existingUsers.documents[0];
     }
+
+    return await this.databases.createDocument(
+      conf.appwriteDatabaseId,
+      conf.appwriteUserCollectionId,
+      ID.unique(),
+      {
+        userId,
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone || "",
+        role: userData.role || "buyer",
+        status: userData.status || "",
+        businessName: userData.businessName || "",
+        businessAddress: userData.businessAddress || "",
+        latitude: userData.latitude || "",
+        longitude: userData.longitude || ""
+      }
+    );
+  } catch (error) {
+    console.error("Error saving user data:", error);
+    throw error;
   }
+}
+
 
   async updateUserData(documentId, updatedData) {
     try {
