@@ -32,6 +32,7 @@ import BuyerComplaint from "./components/Buyer/BuyerComplaint.jsx";
 import Complain from "./pages/seller/Complain.jsx";
 import Commisions from "./components/SellerDash/Commissions.jsx";
 import AdminComission from "./components/AdminDash/AdminComission.jsx";
+import VerifyEmail from "./components/VerifyEmail.jsx";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +58,14 @@ const router = createBrowserRouter([
             <Signup />
           </AuthLayout>
         ),
+      },
+      {
+        path: "/verify-email",
+        element: (
+          <AuthLayout authentication={false}>
+            <VerifyEmail />
+          </AuthLayout>
+        )
       },
       {
         path: "/buyer/buyercomplaint",

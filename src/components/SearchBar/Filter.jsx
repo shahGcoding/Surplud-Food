@@ -56,7 +56,7 @@ function Filter({ filters, setFilters }) {
               step="50"
               value={filters.price}
               onChange={(e) =>
-                setFilters({ ...filters, price: parseInt(e.target.value) })
+                setFilters({ ...filters, price: (e.target.value) })
               }
               className="w-full accent-green-600"
             />

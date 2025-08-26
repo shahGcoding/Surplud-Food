@@ -5,14 +5,18 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 function Header() {
-  const authStatus = useSelector((state) => state.auth.status);
+//  const authStatus = useSelector((state) => state.auth.status);
   const navigate = useNavigate();
-  const role = localStorage.getItem("role");
+//  const role = useSelector((state) => state.auth.role );
+  
+  const {status: authStatus, userData} = useSelector((state) => state.auth);
+  const role = userData?.role;
+  console.log("role", role);
+  
 
   const navItems = [
     { name: 'Home', slug: '/', active: true },
     { name: 'Orders', slug: '/buyer/orders', active: authStatus && role === 'buyer' },
-    { name: 'Contact us', slug: '/contactus', active: true },
     { name: 'About us', slug: '/aboutus', active: true },
     { name: 'Sign In /SignUp', slug: '/login', active: !authStatus },
     { name: 'Dashboard', slug: '/seller/dashboard', active: authStatus && role === 'seller' },

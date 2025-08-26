@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
-import appwriteService from "../../appwrite/config";
+import { getAllComplaints } from "../../config/config";
 import { LogoutBtn } from "../index";
 import { BsHouse, BsPeople, BsViewList, BsCurrencyDollar } from "react-icons/bs";
 
 function AdminLayout() {
   const authStatus = useSelector((state) => state.auth.status);
-  const role = useSelector((state) => state.auth.role);
   const userData = useSelector((state) => state.auth.userData);
-  // const adminId = userData.$id;
+  const adminId = userData?._id;
 
   const [unreadComplaints, setUnreadComplaints] = useState(0);
 
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
-        const response = await appwriteService.getAllComplaints();
-        const unRead = response.documents.filter(
+        const response = await getAllComplaints();
+        const unRead = response.filter(
           (c) => c.status !== "resolved"
         ).length;
         setUnreadComplaints(unRead);
@@ -78,7 +77,7 @@ function AdminLayout() {
           )}
         </NavLink>
 
-        {authStatus && role === "admin" && (
+        {authStatus && (
           <div className={` pt-2 mt-40 border-t border-green-300`}>
             <LogoutBtn />
           </div>

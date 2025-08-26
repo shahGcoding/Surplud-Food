@@ -1,58 +1,63 @@
-import React, { useState, useEffect } from 'react'
-import {useDispatch} from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import './App.css'
-import authService from './appwrite/auth'
-import appwriteService from './appwrite/config'
-import { Header, Footer } from './components'
-import {login, logout} from './store/authSlice'
-import { Outlet } from 'react-router-dom'
-
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, Outlet } from "react-router-dom";
+import "./App.css";
+import { getCurrentUser, getUserRole } from "./config/config";
+import { Header, Footer } from "./components";
+import { login, logout } from "./store/authSlice";
 
 function App() {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { userData } = useSelector((state) => state.auth);
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchAndStoreUser = async () => {
       try {
-        const userData = await authService.getCurrentUser()
         if (userData) {
-          const role = await appwriteService.getUserRole(userData.$id)
-          const updatedUser = { ...userData, role: role || "buyer" }
+          setLoading(false);
+          return;
+        }
 
-          dispatch(login(updatedUser))
+        const userRes = await getCurrentUser();
+       // const userDataRes = userRes?.data;
+        if (userRes) {
+          const roleRes = await getUserRole(userRes._id);
 
-          if (userData.prefs?.role === "admin") navigate("/admin-dashboard");
-            else if (userData.prefs?.role === "seller") navigate("/seller-dashboard");
-            else navigate("/");
-      } else {
+          const updatedUser = {...userRes, role: roleRes?.role || "buyer",};
+
+          dispatch(login(updatedUser));
+
+          // redirect based on role
+          if (updatedUser.role === "admin") navigate("/admin-dashboard");
+          else if (updatedUser.role === "seller") navigate("/seller-dashboard");
+          else navigate("/");
+        } else {
+          dispatch(logout());
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
         dispatch(logout());
-      }
-       } catch (error) {
-        console.error("Failed to fetch user:", error)
-        dispatch(logout())
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchAndStoreUser()
-  }, [navigate, dispatch])
+    fetchAndStoreUser();
+  }, [navigate, dispatch]);
 
-
- return !loading ? (
-  <div className='min-h-screen flex flex-wrap content-between bg-gray-100'>
-    <div className='w-full block'>
-      <Header />
-      <main className='bg-gray-100'>
-       {<Outlet />}
-      </main>
-      <Footer />
+  return !loading ? (
+    <div className="min-h-screen flex flex-wrap content-between bg-gray-100">
+      <div className="w-full block">
+        <Header />
+        <main className="bg-gray-100">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
     </div>
-  </div>
-) : null
+  ) : null;
 }
 
-export default App
+export default App;

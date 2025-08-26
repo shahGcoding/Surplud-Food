@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import appwriteService from "../../appwrite/config";
+import { getAllUsers, updateUserData } from "../../config/config";
 import { BsSearch, BsArrowBarDown } from "react-icons/bs";
 import { Input } from "../../components";
 
@@ -14,8 +14,10 @@ function ManageUsers() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await appwriteService.getAllUsers();
-      const user = response.documents || [];
+      const response = await getAllUsers();
+
+      const user = response.filter((u) => u.role !== "admin") || []; // remove admin account
+
       setUsers(user);
       setFilteredResults(user);
     } catch (error) {
@@ -32,9 +34,11 @@ function ManageUsers() {
     } else {
       const results = users.filter(
         (user) =>
-          user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.role !== "admin" && (
+          user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
           user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
           user.role.toLowerCase().includes(searchQuery.toLowerCase())
+          )
       );
       setFilteredResults(results);
     }
@@ -62,10 +66,10 @@ function ManageUsers() {
       </div>
 
       <div className="grid grid-cols-6 gap-6 bg-gray-300 text-gray-800 font-semibold px-4 py-4 ">
-        <p className="font-bold">User</p>
-        <p className="font-bold ml-7">Name</p>
+        <p className="font-bold">UserId</p>
+        <p className="font-bold ml-12">Name</p>
         <p className="font-bold">Email</p>
-        <p className="font-bold">Role</p>
+        <p className="font-bold ml-7">Role</p>
         <p className="flex items-center gap-1">
           Created <BsArrowBarDown />{" "}
         </p>
@@ -82,16 +86,16 @@ function ManageUsers() {
         <div>
           {filteredResults.map((user) => (
             <div
-              key={user.$id}
+              key={user._id}
               className="grid grid-cols-6 gap-6 border border-green-200 bg-white shadow-sm px-4 py-3"
             >
 
-              <p className="text-gray-600">{user.$id}</p>
-              <p className="text-gray-600 ml-7">{user.name}</p>
+              <p className="text-gray-600">{user._id}</p>
+              <p className="text-gray-600 ml-12">{user.username}</p>
               <p className="text-gray-600">{user.email}</p>
-              <p className="text-gray-600">{user.role}</p>
+              <p className="text-gray-600 ml-7">{user.role}</p>
               <p className="text-gray-600">
-                {new Date(user.$createdAt).toLocaleDateString()}
+                {new Date(user.createdAt).toLocaleDateString()}
               </p>
               {/* <p className="text-gray-600">{user.status}</p> */}
 
@@ -109,7 +113,7 @@ function ManageUsers() {
                 <button
                   onClick={async () => {
                     let newStatus;
-
+                    
                     if (user.status === "pending") {
                       newStatus = "active"; // approving seller
                     } else if (user.status === "active") {
@@ -119,9 +123,7 @@ function ManageUsers() {
                     }
 
                     try {
-                      await appwriteService.updateUser(user.$id, {
-                        status: newStatus,
-                      });
+                      await updateUserData(user._id, {status: newStatus});
                       fetchUsers(); // refresh list after update
                     } catch (error) {
                       console.error("Failed to update status:", error);

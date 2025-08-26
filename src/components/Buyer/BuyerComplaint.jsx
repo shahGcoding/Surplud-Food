@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import appwriteService from "../../appwrite/config";
+import { postComplaint } from "../../config/config";
 import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Input, Button } from "../index";
@@ -15,11 +15,8 @@ function BuyerComplaint() {
   } = useForm();
 
   const userData = useSelector((state) => state.auth.userData);
-  const userRole = useSelector((state) => state.auth.role)
   
   const [searchParams] = useSearchParams();
-
-  const [buyerName, setBuyerName] = useState("");
 
   useEffect(() => {
     const sellerId = searchParams.get("sellerId");
@@ -31,48 +28,19 @@ function BuyerComplaint() {
     if (orderId) setValue("orderId", orderId);
   }, [searchParams, setValue]);
 
-  // Fetch buyerName based on buyerId
-  useEffect(() => {
-    const fetchBuyerDetails = async () => {
-      try {
-        const response = await appwriteService.getAllUsers();
-        const currentUser = response.documents.find(
-          (user) => user.userId === userData?.$id
-        );
-        if (currentUser) {
-          setBuyerName(currentUser.name);
-        }
-      } catch (error) {
-        console.error("Error fetching buyer name", error);
-      }
-    };
-
-    if (userData?.$id) {
-      fetchBuyerDetails();
-    }
-  }, [userData]);
-
   const onSubmit = async (data) => {
 
     const complainData = {
-      buyerId: userData.$id,
-      role: userRole,
-      buyerRole: "buyer",
-      sellerRole: "seller",
-      messageBy: "buyer",
-      buyerName: buyerName,
+      buyerId: userData._id,
+      messageBy: userData.role,
       sellerId: data.sellerId,
-      sellerName: data.sellerName,
       orderId: data.orderId,
       message: data.message,
-      status: "unresolved",
-      createdAt: new Date().toISOString(),
     };
 
-    console.log("Complain data", complainData);
 
     try {
-      await appwriteService.postComplaint(complainData);
+      await postComplaint(complainData);
       alert("Complaint submit Successfully !");
       reset();
     } catch (error) {

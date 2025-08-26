@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import appwriteService from "../../appwrite/config";
+import { getAllComplaints, updateComplaintStatus, deleteComplaint } from "../../config/config";
 import { Button } from "../../components";
 
 function HandleComplaints() {
@@ -8,14 +8,16 @@ function HandleComplaints() {
 
   const fetchComplaints = async () => {
     try {
-      const response = await appwriteService.getAllComplaints();
-      setComplaints(response.documents);
+      const response = await getAllComplaints();
+      console.log("response", response);
+      setComplaints(response || []);
     } catch (error) {
-      throw error;
+      console.log("Error fetching complaints", error);
+      
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   useEffect(() => {
     fetchComplaints();
@@ -23,7 +25,7 @@ function HandleComplaints() {
 
   const handleMarkResolved = async (complaintId) => {
     try {
-      await appwriteService.updateComplaintStatus(complaintId, "Resolved");
+      await updateComplaintStatus(complaintId, "Resolved");
       alert("complaint marked as resolved");
       fetchComplaints(); // for refresh
     } catch (error) {
@@ -34,7 +36,7 @@ function HandleComplaints() {
   const handleDelete = async (complaintId) => {
     if(window.confirm("Are sure to delete ?")){
     try {
-      await appwriteService.deleteComplaint(complaintId);
+      await deleteComplaint(complaintId);
       alert("complaint deleted");
       fetchComplaints();
     } catch (error) {
@@ -71,7 +73,7 @@ function HandleComplaints() {
         <div className="space-y-4">
           {complaints.slice().reverse().map((complaint) => (
             <div
-              key={complaint.$id}
+              key={complaint._id}
               className="p-4 border rounded bg-white shadow"
             >
               <p>
@@ -81,25 +83,25 @@ function HandleComplaints() {
                 </strong>{" "}
                 {""}
                 {complaint.messageBy === "seller"
-                  ? `${complaint.sellerName} (${complaint.sellerId})`
-                  : `${complaint.buyerName} (${complaint.buyerId})`}
+                  ? `${complaint.sellerId?.username} (${complaint.sellerId?._id})`
+                  : `${complaint.buyerId?.username} (${complaint.buyerId?._id})`}
               </p>
               <p>
                 <strong>
                   To ({complaint.messageBy === "seller" ? "Buyer" : "Seller"}):
                 </strong>{" "}
                 {complaint.messageBy === "seller"
-                  ? `${complaint.buyerName} (${complaint.buyerId})`
-                  : `${complaint.sellerName} (${complaint.sellerId})`}
+                  ? `${complaint.buyerId?.username} (${complaint.buyerId?._id})`
+                  : `${complaint.sellerId?.username} (${complaint.sellerId?._id})`}
               </p>
 
               {complaint.messageBy !== "seller" && (
                 <p>
-                  <strong>Order ID:</strong> {complaint.orderId}
+                  <strong>Order ID:</strong> {complaint.orderId._id}
                 </p>
               )}
               <p>
-                <strong>Message:</strong> {complaint.message}
+                <strong>Complaint:</strong> {complaint.message}
               </p>
               <p>
                 status:{' '}
@@ -115,7 +117,7 @@ function HandleComplaints() {
               <div className="flex gap-4 mt-3">
                 {complaint.status !== "Resolved" && (
                   <Button
-                    onClick={() => handleMarkResolved(complaint.$id)}
+                    onClick={() => handleMarkResolved(complaint._id)}
                     className="bg-green-600 text-white"
                   >
                     Mark Resolved
@@ -123,7 +125,7 @@ function HandleComplaints() {
                 )}
                 { complaint.status === "Resolved" &&
                 <Button
-                  onClick={() => handleDelete(complaint.$id)}
+                  onClick={() => handleDelete(complaint._id)}
                   className="bg-red-500 hover:cursor-pointer hover:scale-110 hover:bg-red-700 text-white "
                 >
                   Delete

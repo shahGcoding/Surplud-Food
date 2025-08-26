@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import appwriteService from "../../appwrite/config";
+import { postMessage, getOrderByBuyerId } from "../../config/config";
 import { useSelector } from "react-redux";
 import { Container, Button } from "../../components";
 import { Link } from "react-router-dom";
 
 export default function Order() {
   const userData = useSelector((state) => state.auth.userData);
+  const buyerId = userData?._id;
 
-  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [orders, setOrders] = useState([]);
@@ -18,14 +18,11 @@ export default function Order() {
   const handleSendMessage = async (sellerId, orderId, message) => {
     setSendingStatus((prev) => ({ ...prev, orderId: "sending" }));
     try {
-      await appwriteService.postMessage({
+      await postMessage({
         sellerId,
-        buyerId: userData.$id,
-        buyerName: userData.name,
+        buyerId: userData._id,
         orderId,
         message,
-        dateSent: new Date().toISOString(),
-        status: "Unread",
       });
       alert("Message sent successfully!");
       setMessageInput((prev) => ({ ...prev, [orderId]: "" }));
@@ -37,31 +34,16 @@ export default function Order() {
     }
   };
 
-  const fetchSellerDetails = async () => {
-    try {
-      const response = await appwriteService.getAllUsers();
-      setUsers(response.documents || []);
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const getSellerName = (userId) => {
-    const user = users.find((u) => u.userId === userId);
-    return user ? user.name : "Unknown Seller";
-  };
-
   useEffect(() => {
-    if (userData && userData.email) {
-      fetchOrders(userData.email);
+    if (buyerId) {
+      fetchOrders();
     }
-    fetchSellerDetails();
-  }, [userData]);
+  }, [buyerId]);
 
   const fetchOrders = async () => {
     try {
-      const response = await appwriteService.getOrdersByBuyer(userData.email); // or userData.userId if stored that way
-      setOrders(response.documents || []);
+      const response = await getOrderByBuyerId(userData._id); // or userData.userId if stored that way
+      setOrders(response || []);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -97,25 +79,25 @@ export default function Order() {
             .reverse()
             .map((order) => (
               <div
-                key={order.$id}
+                key={order._id}
                 className="border p-4 rounded-md shadow-sm bg-white"
               >
                 <p className="font-bold">Food: {order.foodTitle}</p>
                 <p>Quantity: {order.quantity}</p>
                 <p>Total Price: Rs. {order.totalPrice}</p>
                 <p>Payment Method: {order.paymentMethod} </p>
-                <p>Order Date: {order.orderDate}</p>
-                
+                <p>Order Date: {order.createdAt}</p>
+
                 <div className=" flex flex-col mt-4">
                   <label className="block text-sm font-semibold mb-1">
                     Message to Seller:
                   </label>
                   <textarea
-                    value={messageInput[order.$id] || ""}
+                    value={messageInput[order._id] || ""}
                     onChange={(e) =>
                       setMessageInput((prev) => ({
                         ...prev,
-                        [order.$id]: e.target.value,
+                        [order._id]: e.target.value,
                       }))
                     }
                     placeholder="Write a message or report an issue..."
@@ -127,21 +109,21 @@ export default function Order() {
                       onClick={() =>
                         handleSendMessage(
                           order.sellerId,
-                          order.$id,
-                          messageInput[order.$id]
+                          order._id,
+                          messageInput[order._id]
                         )
                       }
                       className="bg-green-500 w-40 text-white px-4 py-1 rounded hover:bg-green-700 "
-                      disabled={sendingStatus[order.$id] === "sending"}
+                      disabled={sendingStatus[order._id] === "sending"}
                     >
-                      {sendingStatus[order.$id] === "sending"
+                      {sendingStatus[order._id] === "sending"
                         ? "Sending..."
                         : "Send Message"}
                     </Button>
                   )}
                 </div>
 
-                <p>Seller Name: {getSellerName(order.sellerId)}</p>
+                <p>Seller Name: {order.sellerId?.username}</p>
                 <p>
                   Status:{" "}
                   <span className={`font-bold ${getStatusColor(order.status)}`}>
@@ -152,9 +134,11 @@ export default function Order() {
                   <div className="flex justify-end">
                     <Link
                       to={`/buyer/buyercomplaint?sellerId=${
-                        order.sellerId
-                      }&orderId=${order.$id}&sellerName=${getSellerName(
-                        order.sellerId
+                        typeof order.sellerId === "object"
+                          ? order.sellerId._id
+                          : order.sellerId
+                      }&orderId=${order._id}&sellerName=${encodeURIComponent(
+                        order.sellerId?.username || "Unknown"
                       )}`}
                     >
                       <Button className="bg-orange-400 text-white px-4 py-1 rounded hover:bg-orange-600">

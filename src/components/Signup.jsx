@@ -1,94 +1,55 @@
 import React, { useState } from "react";
-import authService from "../appwrite/auth";
+import { registerUser } from "../config/config.js";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { login } from "../store/authSlice";
 import { Button, Input, Logo, Select } from "./index";
 import { useForm } from "react-hook-form";
 
 function Signup() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [error, setError] = useState("");
   const [role, setRole] = useState("buyer");
 
   const { register, handleSubmit } = useForm();
-  
 
+  const create = async (data) => {
+    setError("");
 
-//   const create = async (data) => {
-//     setError("");
-//     try {
-//         const userData = await authService.createAccount({ 
-//             email: data.email, 
-//             password: data.password, 
-//             name: data.name, 
-//             role: data.role, // Ensure role is passed
-//             businessName: data.businessName || "",
-//             businessAddress: data.businessAddress || "",
-//             phone: data.phone || "",
-//         });
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
-//         if (userData) {
-//             dispatch(login(userData)); 
+        try {
+          const userData = await registerUser({
+            email: data.email,
+            password: data.password,
+            username: data.name,
+            role: data.role,
+            businessName: data.businessName || "",
+            businessAddress: data.businessAddress || "",
+            phone: data.phone || "",
+            latitude: lat,
+            longitude: lng,
+          });
 
-//             setTimeout(() => {
-//               if (userData.role === "admin") navigate("/admin-dashboard");
-//               else if (userData.role === "seller") navigate("/seller-dashboard");
-//               else navigate("/");
-//             }, 500);
-//         }
-//     } catch (error) {
-//         setError(error.message);
-//     }
-// };
+          if (userData) {
+            if (!userData.isverified) {
+              navigate("/verify-email");
+            } else {
+              navigate("/login"); 
+            }
+          }
 
-const create = async (data) => {
-  setError("");
-
-  // Step 1: Get location first
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-
-      try {
-        const userData = await authService.createAccount({ 
-          email: data.email, 
-          password: data.password, 
-          name: data.name, 
-          role: data.role,
-          businessName: data.businessName || "",
-          businessAddress: data.businessAddress || "",
-          phone: data.phone || "",
-          latitude: lat,
-          longitude: lng
-        });
-
-        if (userData) {
-          dispatch(login(userData)); 
-
-          setTimeout(() => {
-            if (userData.role === "admin") navigate("/admin-dashboard");
-            else if (userData.role === "seller") navigate("/seller-dashboard"); // change to seller dashboard if needed
-            else navigate("/");
-          }, 500);
+        } catch (error) {
+          setError(error.response?.data?.message || error.message);
         }
-      } catch (error) {
-        setError(error.message);
+      },
+      (error) => {
+        console.error("Error getting location", error);
+        setError("Location access is required for signup.");
       }
-    },
-    (error) => {
-      console.error("Error getting location", error);
-      setError("Location access is required for signup.");
-    }
-  );
-};
-
-
-  
-
-
+    );
+  };
 
   return (
     <div className="flex items-center justify-center">
@@ -142,7 +103,6 @@ const create = async (data) => {
               {...register("password", { required: true })}
             />
 
-
             {/* Extra Fields for Sellers */}
             {role === "seller" && (
               <>
@@ -155,17 +115,13 @@ const create = async (data) => {
                 <Input
                   label="Business Address:"
                   placeholder="Enter your business address"
-                  {...register("businessAddress", {
-                    required: true,
-                  })}
+                  {...register("businessAddress", { required: true })}
                 />
 
                 <Input
                   label="Contact Number:"
                   placeholder="Enter your contact number"
-                  {...register("contactNumber", {
-                    required: true,
-                  })}
+                  {...register("phone", { required: true })}
                 />
               </>
             )}
@@ -179,7 +135,10 @@ const create = async (data) => {
               onChange={(e) => setRole(e.target.value)}
             />
 
-            <Button type="submit" className="w-full bg-green-700 hover:cursor-pointer hover:bg-green-500 text-white">
+            <Button
+              type="submit"
+              className="w-full bg-green-700 hover:cursor-pointer hover:bg-green-500 text-white"
+            >
               Create Account
             </Button>
           </div>

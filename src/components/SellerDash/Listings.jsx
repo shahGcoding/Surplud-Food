@@ -1,36 +1,35 @@
 import React, { useState, useEffect } from "react";
-import appwriteService from "../../appwrite/config";
+import { getAllFoodPosts,  } from "../../config/config";
 import { Container, PostCard } from "../../components";
 import { useSelector } from "react-redux";
 
 function MyListing() {
-  const reduxUserId = useSelector((state) => state.auth.userData?.$id);
+  const reduxUserId = useSelector((state) => state.auth.userData?._id);
 
   const userId = reduxUserId || localStorage.getItem("userId");
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    if (!userId) return;
+  if (!userId) return;
 
-    const fetchUserPosts = async () => {
-      try {
-        const response = await appwriteService.getPosts();
-        if (response?.documents) {
+  const fetchUserPosts = async () => {
+    try {
+      const response = await getAllFoodPosts(); // response is array of posts
 
-          const userPosts = response.documents.filter((post) => {
-            
-            return post.userId === userId;
-          });
+      const userPosts = response.filter((post) => {
 
-          setPosts(userPosts);
-        }
-      } catch (error) {
-        throw error
-      }
-    };
+        return post.userId?._id === userId;
+        
+      });
 
-    fetchUserPosts();
-  }, [userId]);
+      setPosts(userPosts);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
+
+  fetchUserPosts();
+}, [userId]);
 
   return (
     <div className="w-full py-4">
@@ -39,7 +38,7 @@ function MyListing() {
         <div className="flex flex-wrap">
           {posts.length > 0 ? (
             posts.map((post) => (
-              <div key={post.$id} className="p-2 w-1/4">
+              <div key={post._id} className="p-2 w-1/4">
                 <PostCard {...post} />
               </div>
             ))

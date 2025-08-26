@@ -1,33 +1,37 @@
 import React, {useState, useEffect} from 'react';
-import appwriteService from "../../appwrite/config";
+import { postComplaint } from '../../config/config';
 import { useSelector } from 'react-redux';
 import {Input, Button} from "../../components";
 import { useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router-dom';
 
 function Complains() {
 
-    const [sellerName, setSellerName] = useState("");
+   // const [sellerName, setSellerName] = useState("");
     
     const userData = useSelector((state) => state.auth.userData );
-    const sellerId = userData.$id;
+    const sellerId = userData?._id;
+    const [searchParams] = useSearchParams();
 
-    const {register, handleSubmit, reset, formState: {errors, isSubmitting}} = useForm();
+    const {register, handleSubmit, setValue, reset, formState: {errors, isSubmitting}} = useForm();
+
+    useEffect(() => {
+
+        const buyerId = searchParams.get("buyerId");
+        if(buyerId) setValue("buyerId", buyerId);
+
+    }, [searchParams, setValue])
 
     const onSubmit = async (data) =>{
         const complainData = {
-            sellerId: sellerId,
-            sellerName: sellerName,
-            buyerRole: "buyer",
-            sellerRole: "seller",
             buyerId: data.buyerId,
-            buyerName: data.buyerName,
-            messageBy: "seller",
+            sellerId: sellerId,
+            messageBy: userData.role,
             message: data.message,
-            status: "unread",
-            createdAt: new Date().toISOString(),
+
         }
         try {
-            await appwriteService.postComplaint(complainData);
+            await postComplaint(complainData);
             alert("Complaint post succesfully !")
             reset();
         } catch (error) {
@@ -36,46 +40,27 @@ function Complains() {
         
     }
 
-    useEffect(() =>{
-        const fetchSeller = async () =>{
-            try {
-                const response = await appwriteService.getAllUsers();
-                const currentUser = response.documents.find((d) => d.userId === userData?.$id )
-
-                if(currentUser){
-                    setSellerName(currentUser.name)
-                }
-
-            } catch (error) {
-                throw error
-            }
-        }
-
-        if(userData?.$id){
-            fetchSeller();
-        }
-
-    }, [])
 
   return (
     <div className='max-w-xl mx-auto bg-white p-4 rounded shadow'>
         <h1 className='font-bold text-2xl mb-4'>Submit Complaint to Admin</h1>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
-            <Input
-            label="Buyer Name/Email : "
+            {/* <Input
+            label="Buyer Email : "
             placholder="Enter buyer name...."
-            {...register("buyerName", {required: true})}
+            {...register("buyerEmail", {required: true})}
             />
 
             {errors.buyerName && (
           <p className="text-red-500">{errors.buyerName.message}</p>
-        )}
+        )} */}
 
-            <Input
-            label="BuyerId : "
-            placholder="Enter buyer Id..."
-            {...register("buyerId",{required: true})}
+             <Input
+            label="Buyer Id : "
+            type="password"
+            {...register("buyerId", {required: true})}
             />
+
             {errors.buyerId && (
           <p className="text-red-500">{errors.buyerId.message}</p>
         )}
@@ -85,7 +70,7 @@ function Complains() {
                 <textarea
                 {...register("message",{required: true})}
                 placeholder='Write your complaint here...'
-                rows={4}
+                rows={10}
                 className='w-full p-2 rounded border'
                 />
                 {errors.message && (

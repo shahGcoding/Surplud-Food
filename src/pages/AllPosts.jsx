@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import appwriteService from '../appwrite/config'
+import { getAllFoodPosts } from '../config/config'
 import { PostCard, Container } from '../components'
 
 function AllPosts() {
@@ -10,7 +10,7 @@ function AllPosts() {
 
     }, [])
 
-    appwriteService.getPosts([]).then((posts) =>{
+    getAllFoodPosts([]).then((posts) =>{
         if(posts){
             setPosts(posts.documents)
         }
@@ -21,7 +21,7 @@ function AllPosts() {
         <Container>
           <div className='flex flex-wrap'>
               {posts.map((post) => (
-                <div key={post.$id} className='p-2 w-1/4'>
+                <div key={post._id} className='p-2 w-1/4'>
                     <PostCard post={post} />
                 </div>
               ))}

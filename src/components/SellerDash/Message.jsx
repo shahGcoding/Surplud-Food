@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import appwriteService from '../../appwrite/config';
+import { getUserById, getCurrentUser, getMessageForSeller, markMessageAsRead } from '../../config/config';
 import { useSelector } from 'react-redux';
-import authService from '../../appwrite/auth';
 
 const Message = () => {
 
@@ -9,25 +8,22 @@ const Message = () => {
   const [loading, setLoading] = useState(true);
   const userData  = useSelector((state) => state.auth.userData);
 
-  const [buyerName, setBuyerName] = useState("")
-
-  const sellerId = userData?.$id 
+  const sellerId = userData?._id 
 
   const fetchMessages = async () => {
 
-      const session = await authService.getCurrentUser()
-      const userDoc = await appwriteService.getUserById(session.$id)
+      const session = await getCurrentUser()
+      const userDoc = await getUserById(session._id)
 
        if(userDoc.status === 'inactive'){
-      alert("blocked user can't seen the messages")
-      return;
+       return alert("blocked user can't seen the messages");
     }
 
       try { 
         if(!sellerId) return;
 
-        const response = await appwriteService.messageFromBuyer(sellerId) // Custom Appwrite function
-        setMessages(response.documents); // If Appwrite returns documents
+        const response = await getMessageForSeller(userDoc._id) // Custom Appwrite function
+        setMessages(response); // If Appwrite returns documents
       } catch (error) {
         console.error("Error fetching messages:", error);
       } finally {
@@ -37,30 +33,13 @@ const Message = () => {
   
   const handleMarkAsRead = async (messageId) => {
     try {
-      await appwriteService.markMessageAsRead(messageId); // Custom Appwrite function
+      await markMessageAsRead(messageId); // Custom Appwrite function
       fetchMessages(); // Refresh messages after marking as read
     } catch (error) {
       console.error("Error marking message as read:", error);
       alert("Failed to mark message as read. Please try again.");
     }
-  }  
-
-  // for buyerName 
-
-  useEffect(() => {
-      const fetchBuyer = async () => {
-        const response = await appwriteService.getAllUsers();
-        const currentUser = response.documents.find((user) => user.userId === userData?.$id);
-        if(currentUser){
-          setBuyerName(currentUser.name)
-        }
-      }
-
-      if (userData?.$id) {
-        fetchBuyer();
-      }
-
-  }, [userData])
+  }
 
   useEffect(() => {
 
@@ -85,7 +64,7 @@ const Message = () => {
       ) : (
         <div className="space-y-4">
           {messages.map((msg) => (
-            <div key={msg.$id} className="bg-white shadow-md p-4 rounded-xl">
+            <div key={msg._id} className="bg-white shadow-md p-4 rounded-xl">
               {
                 (msg.status === "Unread") && (
                 <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full animate-pulse">
@@ -95,12 +74,12 @@ const Message = () => {
               }
               <p className="text-gray-700">{msg.message}</p>
               <div className="text-sm text-gray-500 mt-2">
-                <span>From: {buyerName}</span> <br />
+                <span>From: {msg.buyerId ? msg.buyerId.username : "Unknown Buyer"}</span> <br />
                 <span>{new Date(msg.dateSent).toLocaleString()}</span>
               </div>
               {
                 (msg.status === "Unread") && (
-                  <button onClick={() => handleMarkAsRead(msg.$id)} className="mt-2 text-blue-500 hover:underline">
+                  <button onClick={() => handleMarkAsRead(msg._id)} className="mt-2 text-blue-500 hover:underline">
                     Mark as Read
                   </button>
                 )

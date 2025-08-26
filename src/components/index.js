@@ -20,7 +20,6 @@ import AdminDash from "./AdminDash/AdminDash";
 import ManageUsers from './AdminDash/ManageUsers';
 import ManageListings from './AdminDash/ManageListings';
 import HandleComplaints from './AdminDash/HandleComplaints';
-import GenerateReport from './AdminDash/GenerateReport';
 import SellerLayout from './SellerDash/SellerLayout'
 import SearchBar from "./SearchBar/SearchBar";
 import Filter from "./SearchBar/Filter";
@@ -36,6 +35,8 @@ import BuyerComplaint from "./Buyer/BuyerComplaint";
 import Complains from "./SellerDash/Complains";
 import Commissions from "./SellerDash/Commissions";
 import AdminComission from "./AdminDash/AdminComission";
+import verifyEmail from "./VerifyEmail";
+
 
 export {
     Header,
@@ -70,11 +71,11 @@ export {
     ManageUsers,
     ManageListings,
     HandleComplaints,
-    GenerateReport,
     DarkMode,
     BuyerComplaint,
     Complains,
     Commissions,
-    AdminComission
+    AdminComission,
+    verifyEmail
 
 }

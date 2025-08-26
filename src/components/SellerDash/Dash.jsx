@@ -6,8 +6,6 @@ import {
   BsCheckCircle,
 } from "react-icons/bs";
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -17,56 +15,65 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import appwriteService from "../../appwrite/config";
-import { useSelector } from "react-redux";
-import authService from "../../appwrite/auth";
+import {
+  getUserById,
+  getCurrentUser,
+  getPostsByUser,
+  getOrderBySellerId,
+} from "../../config/config";
 
 const Dash = () => {
-  const { userData } = useSelector((state) => state.auth);
-  const sellerId = userData?.$id;
-
-  const [users, setUsers] = useState("active");
+  const [user, setUser] = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   const [listings, setListings] = useState(0);
   const [pendingOrders, setPendingOrders] = useState(0);
   const [completedOrders, setCompletedOrders] = useState(0);
   const [buyers, setBuyers] = useState(0);
-
   const [chartData, setChartData] = useState([]);
 
-  const fetchUSerDoc = async () => {
-    try {
-      const session = await authService.getCurrentUser();
-      const doc = await appwriteService.getUserById(session.$id);
-      setUsers(doc);
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoadingUser(false);
-    }
-  };
+  // Fetch user and dashboard data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+  
+        const session = await getCurrentUser();
+        console.log("session", session);
 
-  const fetchDashboardData = async () => {
+        const doc = await getUserById(session._id);
+        setUser(doc);
+
+        await fetchDashboardData(doc._id);
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+      } finally {
+        setIsLoadingUser(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const fetchDashboardData = async (sellerId) => {
     if (!sellerId) return;
 
     try {
-      const listing = await appwriteService.getPostsByUser(sellerId);
-      setListings(listing?.documents?.length || 0);
+      // Listings
+      const listing = await getPostsByUser(sellerId);
+      console.log("listing", listing);
+      setListings(listing.length || 0);
 
-      const orderRes = await appwriteService.getOrdersBySeller(sellerId);
-      const orders = orderRes?.documents || [];
+      // Orders
+      const orderRes = await getOrderBySellerId(sellerId);
+      const orders = orderRes;
 
-      const pending = orders.filter((o) => o.status === "Pending").length;
-      setPendingOrders(pending);
-
-      const completed = orders.filter((o) => o.status === "Delivered").length;
-      setCompletedOrders(completed);
+      setPendingOrders(orders.filter((o) => o.status === "Pending").length);
+      setCompletedOrders(orders.filter((o) => o.status === "Delivered").length);
 
       const uniqueBuyers = new Set(orders.map((o) => o.buyerId));
       setBuyers(uniqueBuyers.size);
 
-      // for chart
+      // Chart Data
       const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
       const weekData = {
         Sun: { name: "Sun", completed: 0, pending: 0 },
@@ -79,8 +86,13 @@ const Dash = () => {
       };
 
       orders.forEach((order) => {
+
+        if(!order.$createdAt) return;
+
         const createdAt = new Date(order.$createdAt);
         const dayName = daysMap[createdAt.getDay()];
+
+         if (!weekData[dayName]) return;
 
         if (order.status === "Pending") {
           weekData[dayName].pending += 1;
@@ -89,19 +101,12 @@ const Dash = () => {
         }
       });
 
-      // Convert to array and sort by day order
       const orderedWeekData = daysMap.map((day) => weekData[day]);
       setChartData(orderedWeekData);
-
     } catch (err) {
-      console.error("Error loading dashboard data:", err);
+      console.error("Error fetching dashboard data:", err);
     }
   };
-
-  useEffect(() => {
-    fetchUSerDoc();
-    fetchDashboardData();
-  }, [sellerId]);
 
   if (isLoadingUser) {
     return <div className="p-6 text-gray-600">Loading dashboard...</div>;
@@ -109,9 +114,9 @@ const Dash = () => {
 
   return (
     <main className="p-6 space-y-8 bg-gray-50 min-h-screen">
-      <div className="text-3xl font-bold text-gray-800"> Dashboard</div>
+      <div className="text-3xl font-bold text-gray-800">Dashboard</div>
 
-      {users.status === "inactive" && (
+      {user?.status === "inactive" && (
         <div className="bg-red-100 text-red-700 p-2 rounded">
           Your account is currently blocked. Limited access.
         </div>
@@ -156,12 +161,7 @@ const Dash = () => {
               <YAxis allowDecimals={false} />
               <Tooltip />
               <Legend />
-              <Line
-                type="monotone"
-                dataKey="pending"
-                stroke="#facc15"
-                activeDot={{ r: 6 }}
-              />
+              <Line type="monotone" dataKey="pending" stroke="#facc15" activeDot={{ r: 6 }} />
               <Line type="monotone" dataKey="completed" stroke="#4ade80" />
             </LineChart>
           </ResponsiveContainer>

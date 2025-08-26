@@ -3,14 +3,13 @@ import { Outlet, NavLink } from "react-router-dom";
 import { BsHouse, BsList, BsPlus, BsCart , BsExclamationCircleFill, BsCurrencyDollar } from "react-icons/bs";
 import { LogoutBtn } from '../index';
 import { useSelector } from "react-redux";
-import appwriteService from "../../appwrite/config";
-import authService from "../../appwrite/auth";
+import { getMessageForSeller, getUserById } from "../../config/config";
 
 const SellerLayout = () => {
   const authStatus = useSelector((state) => state.auth.status);
 
   const userData = useSelector((state) => state.auth.userData);
-  const sellerId = userData?.$id;
+  const sellerId = userData?._id;
 
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,7 +20,7 @@ const SellerLayout = () => {
     const fetchSellerStatus = async () => {
         try {
           if(!sellerId) return;
-          const res = await authService.getUserData(sellerId);
+          const res = await getUserById(sellerId);
           setSellerStatus(res?.status || "active");
         } catch (error) {
           throw error;
@@ -41,9 +40,8 @@ const SellerLayout = () => {
 
         if (!sellerId) return;
 
-        const response = await appwriteService.messageFromBuyer(sellerId);
-        // const allMessages = response.documents || [];
-        const unreadMessages = response.documents.filter((msg) => msg.status === "Unread").length;
+        const response = await getMessageForSeller(sellerId);
+        const unreadMessages = response.filter((msg) => msg.status === "Unread").length;
 
       setUnreadCount(unreadMessages);
 
@@ -112,7 +110,7 @@ const SellerLayout = () => {
           <BsCart/>
              <span className="ml-2">Orders</span>
           </NavLink>
-          <NavLink to="/seller/message" className={`${navLinkStyle} relative`}>
+          <NavLink to="/seller/message" className={`${navLinkStyle} relative focus:bg-green-600`}>
             💬 <span className="ml-2">Messages</span>
             {unreadCount > 0 && (
               <span className="absolute t-0 left-40 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
@@ -120,7 +118,7 @@ const SellerLayout = () => {
               </span>
             )}
           </NavLink>
-          <NavLink to="/seller/complain" className={navLinkStyle}>
+          <NavLink to={`/seller/complain`} className={navLinkStyle}>
           <BsExclamationCircleFill/>
              <span className="ml-2">Report Buyer</span>
           </NavLink>

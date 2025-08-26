@@ -1,18 +1,18 @@
 import React, {useState, useEffect} from 'react'
 import { Container, PostForm } from '../components'
-import appwriteService from '../appwrite/config'
+import { getFoodPostById } from '../config/config'
 import { useParams, useNavigate } from 'react-router-dom'
 
 
 function EditPost() {
 
-    const [post, setPosts] = useState(null)
-    const {slug} = useParams()
-    const navigate = useNavigate()
+    const [post, setPosts] = useState(null);
+    const {slug} = useParams();
+    const navigate = useNavigate();
 
     useEffect(() =>{
         if(slug){
-            appwriteService.getPost(slug).then((post) =>{
+            getFoodPostById(slug).then((post) =>{
                 if (post) {
                     setPosts(post)
                 }

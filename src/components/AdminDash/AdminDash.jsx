@@ -10,8 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { format } from "date-fns";
-import appwriteService from "../../appwrite/config";
-// import { useSelector } from "react-redux";
+import { getAllUsers, getAllOrders, getAllFoodPostsForAdmin } from "../../config/config";
 
 function AdminDash() {
   const [sellers, setsellers] = useState(0);
@@ -23,9 +22,9 @@ function AdminDash() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // fetch users like seller and buyer
-        const response = await appwriteService.getAllUsers();
-        const users = response.documents || [];
+
+        const response = await getAllUsers();
+        const users = response || [];
         const sellerCount = users.filter(
           (users) => users.role === "seller"
         ).length;
@@ -33,17 +32,17 @@ function AdminDash() {
           (users) => users.role === "buyer"
         ).length;
 
-        const totalListing = await appwriteService.getListingByAllSeller();
-        const totalOrder = await appwriteService.getAllOrders();
+        const totalListing = await getAllFoodPostsForAdmin();
+        const totalOrder = await getAllOrders();
 
         setsellers(sellerCount);
         setbuyers(buyerCount);
-        setTotalListings(totalListing.documents.length);
-        setTotalOrders(totalOrder.documents.length);
+        setTotalListings(totalListing.length);
+        setTotalOrders(totalOrder.length);
 
         // for chart
 
-        const orders = totalOrder.documents;
+        const orders = totalOrder;
         const past7Days = Array.from({ length: 7 }, (_, i) => {
           const date = new Date();
           date.setDate(date.getDate() - i);
@@ -52,7 +51,7 @@ function AdminDash() {
 
         const dailyCounts = past7Days.map((day) => {
           const count = orders.filter((order) =>
-            order?.$createdAt?.startsWith(day)
+            order?.createdAt?.startsWith(day)
           ).length;
           return {
             date: format(new Date(day), "EEE"),

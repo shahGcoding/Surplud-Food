@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login as authLogin } from "../store/authSlice";
-import { Button, Input, Logo, Select } from "./index";
+import { Button, Input, Logo} from "./index";
 import { useDispatch } from "react-redux";
-import authService from "../appwrite/auth";
+import { loginUser }  from "../config/config.js";
+import { getCurrentUser } from "../config/config.js";
 import { useForm } from "react-hook-form";
 
 function Login() {
@@ -16,21 +17,22 @@ function Login() {
 const login = async (data) => {
   setError("");
   try {
-    const session = await authService.login(data);
+    const session = await loginUser(data);
     if (session) {
-      const userData = await authService.getCurrentUser();
+      const userRes = await getCurrentUser();
+      const userData = userRes?.data || userRes;
       if (userData) {
 
         dispatch(authLogin(userData)); // Store user in Redux
 
-        localStorage.setItem("userId", userData.$id);   
-        localStorage.setItem("role", userData.role);   
+        // localStorage.setItem("userId", userData._id);   
+       //  localStorage.setItem("role", userData.role);   
 
         setTimeout(() => {
           if (userData.role === "admin") navigate("/admin/maindashboard");
           else if (userData.role === "seller") navigate("/seller/dashboard");
           else navigate("/");
-        }, 500);
+        }, 100);
       }
     }
   } catch (error) {
@@ -90,10 +92,6 @@ const login = async (data) => {
                 // }
               })}
             />
-
-            <Link>
-            <p className="text-blue-400 m-3">forget password?</p>
-            </Link>
 
             <Button type="submit" className="w-full bg-green-700 hover:cursor-pointer hover:bg-green-500 text-white">
               Sign in

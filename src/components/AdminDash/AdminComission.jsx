@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import appwriteService from "../../appwrite/config";
+import { getUserById, getAllOrders } from "../../config/config";
 
-function AdminCommission() {  
+function AdminCommission() {
   const [orders, setOrders] = useState([]);
   const [sellers, setSellers] = useState([]);
 
@@ -14,25 +14,23 @@ function AdminCommission() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await appwriteService.getAllOrders();
-        const resDoc = res.documents || [];
-        setOrders(resDoc);
-
+        const res = await getAllOrders();
+        setOrders(res || []);
+        
         // Extract unique seller IDs from orders
-        const uniqueSellerIds = [
-          ...new Set(resDoc.map((order) => order.sellerId)),
-        ];
+        const uniqueSellerIds = [ ...new Set(res.map((order) => order.sellerId._id))];
 
         // Fetch sellers' emails
         const sellerDetails = await Promise.all(
           uniqueSellerIds.map(async (id) => {
-            const sellerDoc = await appwriteService.getUserById(id);
+            const sellerDoc = await getUserById(id);
             return {
-              id,
+              _id: sellerDoc._id,
               email: sellerDoc.email || "Unknown Email",
             };
           })
         );
+        console.log("sellerDetails", sellerDetails);
 
         setSellers(sellerDetails);
       } catch (error) {
@@ -47,24 +45,21 @@ function AdminCommission() {
   useEffect(() => {
     if (selectedSeller) {
       const filtered = orders.filter(
-        (order) => order.sellerId === selectedSeller
+        (order) => order.sellerId._id === selectedSeller
       );
       setFilteredOrders(filtered);
 
       // Calculate total commission for selected seller
       const total = filtered.reduce(
-        (sum, order) => sum + (Number(order.comission) || 0),
+        (sum, order) => sum + (order.comission || 0),
         0
       );
       setTotalCommission(total);
 
       const Paid = filtered
         .filter((order) => order.comissionPaid === "true")
-        .reduce((sum, o) => sum + (Number(o.comission) || 0),
-        0
-    );
-        setPaidCommission(Paid);
-
+        .reduce((sum, o) => sum + (o.comission || 0), 0);
+      setPaidCommission(Paid);
     } else {
       setFilteredOrders([]);
       setTotalCommission(0);
@@ -84,7 +79,7 @@ function AdminCommission() {
       >
         <option value="">Select Seller</option>
         {sellers.map((seller) => (
-          <option key={seller.id} value={seller.id}>
+          <option key={seller._id} value={seller._id}>
             {seller.email}
           </option>
         ))}
@@ -93,9 +88,9 @@ function AdminCommission() {
       {/* for total commision */}
       {selectedSeller && (
         <div className="mb-4 font-semibold text-lg">
-          Total Commission: Rs. {totalCommission.toFixed(2)} | Paid Commision:Rs. {paidCommission.toFixed(2)} |
-          Total Orders: {filteredOrders.length}
-           
+          Total Commission: Rs. {totalCommission.toFixed(2)} | Paid
+          Commision:Rs. {paidCommission.toFixed(2)} | Total Orders:{" "}
+          {filteredOrders.length}
         </div>
       )}
 
@@ -110,14 +105,13 @@ function AdminCommission() {
               <th className="border p-2">Order Status</th>
               <th className="border p-2">Commission</th>
               <th className="border p-2">Paid status</th>
-              
             </tr>
           </thead>
           <tbody>
             {filteredOrders.map((order) => (
-              <tr key={order.$id}>
-                <td className="border p-2">{order.$id}</td>
-                <td className="border p-2">{order.sellerName}</td>
+              <tr key={order._id}>
+                <td className="border p-2">{order._id}</td>
+                <td className="border p-2">{order.sellerId.username}</td>
                 <td className="border p-2">{order.totalPrice}</td>
                 {order.status === "Pending" ? (
                   <td className="border p-2 text-yellow-600">{order.status}</td>

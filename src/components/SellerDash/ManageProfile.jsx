@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import appwriteService from "../../appwrite/config";
+import { getUserById, updateUserData } from "../../config/config";
 import { useSelector } from "react-redux";
 import { Button } from "../index";
 import { Input } from "../index";
-import { toast } from "react-toastify";
 
 function ManageProfile() {
   const userData = useSelector((state) => state.auth.userData);
-  const userId = userData?.$id;
+  const userId = userData?._id;
 
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     phone: "",
     businessName: "",
@@ -24,10 +23,10 @@ function ManageProfile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userDoc = await appwriteService.getUserDocumentByUserId(userId);
-        setDocumentId(userDoc.$id); // Save doc ID for updates
+        const userDoc = await getUserById(userId);
+        setDocumentId(userDoc._id); // Save doc ID for updates
         setFormData({
-          name: userDoc.name || "",
+          username: userDoc.username || "",
           email: userDoc.email || "",
           phone: userDoc.phone || "",
           businessName: userDoc.businessName || "",
@@ -35,7 +34,6 @@ function ManageProfile() {
         });
       } catch (err) {
         console.error("Failed to fetch user profile:", err);
-        toast.error("Failed to load profile.");
       } finally {
         setLoading(false);
       }
@@ -55,18 +53,18 @@ function ManageProfile() {
     try {
       setLoading(true);
       if (!documentId) {
-        toast.error("User document not found.");
+        alert("User document not found.");
         return;
       }
 
-      await appwriteService.updateUserData(documentId, {
-        name: formData.name,
+      await updateUserData(documentId, {
+        username: formData.username,
         phone: formData.phone,
         businessName: formData.businessName,
         businessAddress: formData.businessAddress,
       });
 
-      toast.success("Profile updated successfully.");
+      alert("Profile updated successfully.");
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Failed to update profile.");
@@ -84,7 +82,7 @@ function ManageProfile() {
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Name</label>
-          <Input type="text" name="name" value={formData.name} onChange={handleChange} />
+          <Input type="text" name="username" value={formData.username} onChange={handleChange} />
         </div>
 
         <div>

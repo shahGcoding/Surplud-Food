@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import appwriteService from "../../appwrite/config";
+import { getOrderBySellerId, updateCommissionStatus } from "../../config/config";
 import { useSelector } from "react-redux";
 import Button from "../Button";
 import Container from "../container/Container";
@@ -9,19 +9,17 @@ function Commissions() {
   const [loading, setLoading] = useState(true);
 
   const userData = useSelector((state) => state.auth.userData);
-  const sellerId = userData.$id;
+  const sellerId = userData?._id;
 
   const fetchOrder = async () => {
     if (!sellerId) return;
     setLoading(true);
     try {
-      const session = await appwriteService.getOrdersBySeller(sellerId);
-      const order = session?.documents ?? [];
+      const session = await getOrderBySellerId(sellerId);
+      const order = session || [];
 
-      const deliveredOrder = order.filter(
-        (o) => o.status === "Delivered"
-      );
-      console.log("Filtered Delivered Orders:", deliveredOrder);
+      const deliveredOrder = order.filter((o) => o.status === "Delivered");
+
       setFilteredOrders(deliveredOrder);
     } catch (error) {
       throw error;
@@ -31,14 +29,14 @@ function Commissions() {
   };
 
   useEffect(() => {
-    if (userData && userData.$id) {
+    if (sellerId) {
       fetchOrder();
     }
   }, [sellerId]);
 
   const markAsPaid = async (orderId) => {
     try {
-      await appwriteService.updateOrder(orderId, { comissionPaid: "true" });
+      await updateCommissionStatus(orderId);
       alert("Mark Paid successfully !");
       fetchOrder();
     } catch (error) {
@@ -59,7 +57,7 @@ function Commissions() {
         <div>
           {filteredOrders.slice().reverse().map((order) => (
             <div
-              key={order.$id}
+              key={order._id}
               className="bg-white rounded-lg border shadow mb-4 p-4"
             >
               <div>
@@ -68,7 +66,7 @@ function Commissions() {
                 <p>Price: {order.totalPrice}</p>
                 <p>Commission: {order.comission}</p>
                 <p>
-                  Seller: {order.sellerName} ({order.sellerId})
+                  Seller: {order.sellerId.username} ({order.sellerId._id})
                 </p>
                 <p>
                   Commission Status:{" "}
@@ -81,7 +79,7 @@ function Commissions() {
               </div>
             {order.comissionPaid !== "true" &&
                 <div className="flex justify-end items-end">
-              <Button onClick={() => markAsPaid(order.$id)}
+              <Button onClick={() => markAsPaid(order._id)}
                 className="bg-green-500 hover:bg-green-700 transition-transform hover:scale-90 hover:cursor-pointer"
               >
                 Mark as Paid

@@ -1,34 +1,42 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+
+const storedUser = JSON.parse(localStorage.getItem("user"));
+
 const initialState = {
-    status: false,
-    userData: null,
-    role: null, // Add role as a separate field
-  };
-  
+  status: !!storedUser ,
+  userData: storedUser || null,
+};
 
 const authSlice = createSlice({
-    name: "auth",
-    initialState,
-    reducers: {
-        login: (state, action) => {
-            const user = action.payload;
-            if (!user) return;
-            console.log("Login Action Payload:", action.payload);
-            state.status = true;
-            state.userData = user; // Ensure userId is stored
-            state.role = user.role || user.prefs?.role || "buyer"; // Default to buyer if role is missing
-        },
-        logout: (state) => {
-            state.status = false;
-            state.userData = null;
-            state.role = null;
-        },
+  name: "auth",
+  initialState,
+  reducers: {
+    login: (state, action) => {
+      const user = action.payload;
+      if (!user) return;
+      state.status = true;
+
+      state.userData = {
+        ...user,
+        role: user.role || user.prefs?.role || null, // fallback if role missing
+      };
+
+      localStorage.setItem("user", JSON.stringify(state.userData));
+
     },
+    logout: (state) => {
+      state.status = false;
+      state.userData = null;
+      
+       localStorage.removeItem("user");
+    },
+  },
 });
 
-
-
-export const {login,logout} = authSlice.actions;
+export const { login, logout } = authSlice.actions;
 
 export default authSlice.reducer;
+
+
+
