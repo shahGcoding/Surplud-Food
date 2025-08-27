@@ -141,6 +141,12 @@ export default function Post() {
       };
 
       await placeOrder(orderData);
+
+      setPost((prev) => ({
+        ...prev, 
+        quantity: prev.quantity - selectedQuantity
+      }));
+
       alert("Order placed successfully!");
       navigate("/buyer/orders");
     } catch (error) {

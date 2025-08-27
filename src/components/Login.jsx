@@ -23,10 +23,7 @@ const login = async (data) => {
       const userData = userRes?.data || userRes;
       if (userData) {
 
-        dispatch(authLogin(userData)); // Store user in Redux
-
-        // localStorage.setItem("userId", userData._id);   
-       //  localStorage.setItem("role", userData.role);   
+        dispatch(authLogin(userData)); // Store user in Redux  
 
         setTimeout(() => {
           if (userData.role === "admin") navigate("/admin/maindashboard");

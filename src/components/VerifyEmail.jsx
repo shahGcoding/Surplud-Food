@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import Input from "./Input.jsx";
 import Button from "./Button.jsx";
-import { useSelector } from "react-redux";
 
 function VerifyEmail() {
   const [error, setError] = useState("");
@@ -20,7 +19,7 @@ function VerifyEmail() {
 
     const verifiedUser = await verifyEmail({
       code: data.code,
-    //  userId,
+      //userId,
     });
 
     if (verifiedUser) {
