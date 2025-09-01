@@ -12,8 +12,6 @@ import AuthLayout from './AuthLayout'
 import Button from "./Button";
 import Input from "./Input";
 import Select from "./Select";
-import Carousel from "./carousel/Carousel";
-import ContactUs from "./ContactUs";
 import About from "./About";
 import AdminLayout from './AdminDash/AdminLayout';
 import AdminDash from "./AdminDash/AdminDash";
@@ -30,7 +28,6 @@ import Listings from "./SellerDash/Listings";
 import Message from "./SellerDash/Message";
 import Orders from "./Buyer/Orders";
 import Testimonial from "./Testimonial";
-import DarkMode from './toggleBtn/DarkMode';
 import BuyerComplaint from "./Buyer/BuyerComplaint";
 import Complains from "./SellerDash/Complains";
 import Commissions from "./SellerDash/Commissions";
@@ -53,8 +50,6 @@ export {
     Button,
     Input,
     Select,
-    Carousel,
-    ContactUs,
     About,
     AdminLayout,
     SellerLayout,
@@ -71,7 +66,6 @@ export {
     ManageUsers,
     ManageListings,
     HandleComplaints,
-    DarkMode,
     BuyerComplaint,
     Complains,
     Commissions,

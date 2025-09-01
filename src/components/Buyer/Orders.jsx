@@ -83,10 +83,10 @@ export default function Order() {
                 className="border p-4 rounded-md shadow-sm bg-white"
               >
                 <p className="font-bold">Food: {order.foodTitle}</p>
-                <p>Quantity: {order.quantity}</p>
+                <p>Quantity: {order.quantity} kg</p>
                 <p>Total Price: Rs. {order.totalPrice}</p>
                 <p>Payment Method: {order.paymentMethod} </p>
-                <p>Order Date: {order.createdAt}</p>
+                <p>Order Date: {new Date(order.createdAt).toLocaleString()}</p>
 
                 <div className=" flex flex-col mt-4">
                   <label className="block text-sm font-semibold mb-1">

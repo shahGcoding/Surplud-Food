@@ -10,11 +10,16 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import { About, AuthLayout, Login } from "./components/index.js";
 import Signup from "./pages/Signup.jsx";
+import FAQs from "./components/Support/FAQs.jsx";
+import SellerGuideline from "./components/Support/SellerGuideline.jsx";
+import BuyerSupport from "./components/Support/BuyerSupport.jsx";
+import TermsAndConditions from "./components/Legal/TermsAndConditions.jsx";
+import PrivacyPolicy from "./components/Legal/PrivacyPolicy.jsx";
+import Licensing from "./components/Legal/Licensing.jsx";
 import AllPosts from "./pages/AllPosts.jsx";
 import AddPost from "./pages/AddPost.jsx";
 import EditPost from "./pages/EditPost.jsx";
 import Post from "./pages/Post.jsx";
-import ContactUs from "./pages/Contactus.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import MainDashboard from "./pages/admin/MainDashboard.jsx";
 import UserManage from "./pages/admin/UserManage.jsx";
@@ -39,6 +44,9 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
+
+      // header component
+
       {
         path: "/",
         element: <Home />,
@@ -60,6 +68,10 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/aboutus",
+        element: <About />,
+      },
+      {
         path: "/verify-email",
         element: (
           <AuthLayout authentication={false}>
@@ -67,6 +79,60 @@ const router = createBrowserRouter([
           </AuthLayout>
         )
       },
+
+      // Footer component 
+
+      {
+        path: "/faqs",
+        element: (
+          <AuthLayout authentication={false}>
+            <FAQs />
+          </AuthLayout>
+        )
+      },
+      {
+        path: "/seller-guideline",
+        element: (
+          <AuthLayout authentication={false}>
+            <SellerGuideline />
+          </AuthLayout>
+        )
+      },
+      {
+        path: "/buyer-support",
+        element: (
+          <AuthLayout authentication={false}>
+            <BuyerSupport />
+          </AuthLayout>
+        )
+      },
+      {
+        path: "/terms-conditions",
+        element: (
+          <AuthLayout authentication={false}>
+            <TermsAndConditions />
+          </AuthLayout>
+        )
+      },
+      {
+        path: "/privacy-policy",
+        element: (
+          <AuthLayout authentication={false}>
+            <PrivacyPolicy />
+          </AuthLayout>
+        )
+      },
+      {
+        path: "/licensing",
+        element: (
+          <AuthLayout authentication={false}>
+            <Licensing />
+          </AuthLayout>
+        )
+      },
+
+      // buyer component
+
       {
         path: "/buyer/buyercomplaint",
         element: (
@@ -82,14 +148,6 @@ const router = createBrowserRouter([
             <Orders />
           </AuthLayout>
         ),
-      },
-      {
-        path: "/contactus",
-        element: <ContactUs />,
-      },
-      {
-        path: "/aboutus",
-        element: <About />,
       },
       {
         path: "/all-posts",

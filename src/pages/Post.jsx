@@ -21,12 +21,13 @@ export default function Post() {
 
   const { slug } = useParams();
   const navigate = useNavigate();
-  const {userData} = useSelector((state) => state.auth);
+  const { userData, status: authStatus } = useSelector((state) => state.auth);
   const token = useSelector((state) => state.auth.token); // assuming token is stored
 
   const canModify =
     userData?.role === "admin" ||
-    (userData?.role === "seller" && (post?.userId?._id || post?.userId) === userData?._id);
+    (userData?.role === "seller" &&
+      (post?.userId?._id || post?.userId) === userData?._id);
 
   // Fetch post
   useEffect(() => {
@@ -37,7 +38,10 @@ export default function Post() {
 
           getUserById(food.userId._id).then((sellerData) => {
             setSeller(sellerData);
-            if (userData?.role === "buyer" && deliveryMethod === "online-delivery") {
+            if (
+              userData?.role === "buyer" &&
+              deliveryMethod === "online-delivery"
+            ) {
               calculateDeliveryCharges(sellerData);
             }
           });
@@ -53,10 +57,10 @@ export default function Post() {
   // Delivery charge calculation
   const calculateDeliveryCharges = (sellerData) => {
     try {
-      const buyerLat = (userData.latitude);
-      const buyerLng = (userData.longitude);
-      const sellerLat = (sellerData.latitude);
-      const sellerLng = (sellerData.longitude);
+      const buyerLat = userData.latitude;
+      const buyerLng = userData.longitude;
+      const sellerLat = sellerData.latitude;
+      const sellerLng = sellerData.longitude;
 
       if (
         !isNaN(buyerLat) &&
@@ -138,13 +142,14 @@ export default function Post() {
         paymentMethod: "cash on delivery",
         buyerId: userData._id,
         deliveryMethod,
+        deliveryCharge,
       };
 
       await placeOrder(orderData);
 
       setPost((prev) => ({
-        ...prev, 
-        quantity: prev.quantity - selectedQuantity
+        ...prev,
+        quantity: prev.quantity - selectedQuantity,
       }));
 
       alert("Order placed successfully!");
@@ -188,15 +193,18 @@ export default function Post() {
           <p className="text-lg font-semibold text-green-700">
             Price: Rs. {post.price} per Kg
           </p>
-          <p>Quantity Available: {post.quantity} Kg</p>
           <p>
-            Delivery Charges: Rs.{" "}
-            {deliveryMethod === "online-delivery" ? deliveryCharge : 0}
+            Quantity Available:{" "}
+            {post.quantity > 0 ? post.quantity : "Not availabel"} Kg
           </p>
 
           {/* Buyer Only */}
           {userData?.role === "buyer" && (
             <>
+              <p>
+                Delivery Charges: Rs.{" "}
+                {deliveryMethod === "online-delivery" ? deliveryCharge : 0}
+              </p>
               <p className="text-lg font-bold text-red-700">
                 Total Price: Rs. {totalPrice}
               </p>
@@ -230,9 +238,15 @@ export default function Post() {
               </Button>
             </>
           )}
+          <>
+            {!authStatus && (
+              <h1 className="text-2xl font-bold mt-28 ml-50">
+                Sign in for place order !
+              </h1>
+            )}
+          </>
         </div>
       </div>
     </div>
   ) : null;
 }
-

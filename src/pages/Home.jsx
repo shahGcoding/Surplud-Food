@@ -76,7 +76,7 @@ function Home() {
           </p>
           {!authStatus && (
             <Link to={"/signup"} className="inline-block">
-              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition duration-300">
+              <button className="bg-green-600 hover:bg-green-700 hover:cursor-pointer text-white px-4 py-2 rounded-md transition duration-300">
                 Get Started
               </button>
             </Link>
@@ -104,8 +104,8 @@ function Home() {
             : "Latest Available Surplus Food"}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {(isSearching ? searchResults : posts).map((post) => (
-            <PostCard key={post._id} {...post} />
+          {(isSearching ? searchResults : posts).slice().reverse().map((post) => (
+            (post.quantity !== 0) && <PostCard key={post._id} {...post} />
           ))}
         </div>
       </Container>

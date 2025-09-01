@@ -8,22 +8,53 @@ function Footer() {
 
     const navigate = useNavigate()
 
-    const foterItems = [
+    const quickLinks = [
         {
           name: 'Home',
           slug: '/',
           active: true
         },
         {
-          name: 'Contact us',
-          slug: "/contactus",
-          active: true,
-        },
-        {
           name: 'About us',
           slug: "/aboutus",
           active: true,
         },
+      ]
+
+      const Support = [
+        {
+          name: 'FAQs',
+          slug: '/faqs',
+          active: true
+        },
+        {
+          name: 'Seller Guideline',
+          slug: '/seller-guideline',
+          active: true
+        },
+        {
+          name: 'Buyer Support',
+          slug: '/buyer-support',
+          active: true
+        }
+      ] 
+
+      const Legal = [
+        {
+          name: 'Terms & Conditions',
+          slug: '/terms-conditions',
+          active: true
+        },
+        {
+          name: 'Privacy Policy',
+          slug: '/privacy-policy',
+          active: true
+        },
+        {
+          name: 'Licensing',
+          slug: '/licensing',
+          active: true
+        }
       ]
 
   return (
@@ -46,7 +77,7 @@ function Footer() {
           <div>
             <h3 className="mb-4 text-lg font-semibold text-white">Quick Links</h3>
             <ul className='space-y-2'>
-            {foterItems.map((item) => 
+            {quickLinks.map((item) => 
             item.active ? (
               <li key={item.name}>
                 <button
@@ -68,21 +99,23 @@ function Footer() {
           <div>
             <h3 className="mb-4 text-lg font-semibold text-white">Support</h3>
             <ul className="space-y-2">
-              <li>
-                <Link className="text-gray-300 hover:text-gray-100" to="/faq">
-                  FAQs
-                </Link>
-              </li>
-              <li>
-                <Link className="text-gray-300 hover:text-gray-100" to="/seller-guidelines">
-                  Seller Guidelines
-                </Link>
-              </li>
-              <li>
-                <Link className="text-gray-300 hover:text-gray-100" to="/customer-support">
-                  Customer Support
-                </Link>
-              </li>
+              { Support.map((item) => 
+                item.active ? (
+                  <li key={item.name}>
+                    <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(item.slug)
+                    }}
+                    className="text-gray-300 hover:text-gray-100 transition-transform hover:cursor-pointer rounded-md"
+                    >
+                      {item.name}
+                    </button>
+                  </li>
+                ) : null
+              )
+
+              }
             </ul>
           </div>
 
@@ -90,21 +123,21 @@ function Footer() {
           <div>
             <h3 className="mb-4 text-lg font-semibold text-white">Legal</h3>
             <ul className="space-y-2">
-              <li>
-                <Link className="text-gray-300 hover:text-gray-100" to="/terms">
-                  Terms & Conditions
-                </Link>
-              </li>
-              <li>
-                <Link className="text-gray-300 hover:text-gray-100" to="/privacy">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link className="text-gray-300 hover:text-gray-100" to="/licensing">
-                  Licensing
-                </Link>
-              </li>
+              { Legal.map((item) =>
+              item.active ? (
+                <li key={item.slug}>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(item.slug)
+                    }}
+                    className="text-gray-300 hover:text-gray-100 transition-transform hover:cursor-pointer rounded-md"
+                  >
+                    {item.name}
+                  </button>
+                </li>
+              ) : null
+            )}
             </ul>
           </div>
         </div>
