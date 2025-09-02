@@ -15,6 +15,16 @@ export const verifyEmail = async (data) => {
   return res.data?.data;
 }
 
+export const forgotPassword = async (data) => {
+  const res = await API.post("/users/forgotpassword", data);
+  return res.data;
+}
+
+export const resetPassword = async (token,data) => {
+  const res = await API.post(`/users/resetpassword/${token}`, data);
+  return res.data;
+} 
+
 // Login User
 export const loginUser = async (data) => {
   const res = await API.post("/users/login", data);

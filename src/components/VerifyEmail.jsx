@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { verifyEmail } from "../config/config.js";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -10,9 +10,7 @@ function VerifyEmail() {
 
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
-  // const userData = useSelector((state) => state.auth.userData);
-  // const userId = userData?._id;
-
+ 
     const create = async (data) => {
   setError("");
   try {
@@ -29,6 +27,10 @@ function VerifyEmail() {
     setError(error.response?.data?.message || "Invalid verification code");
   }
 };
+
+useEffect(() => {
+  alert("The OTP will expire within 5 minutes with this email !");
+}, [])
 
 
   return (

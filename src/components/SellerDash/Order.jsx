@@ -11,10 +11,12 @@ import { Link } from "react-router-dom";
 export default function PlaceOrder() {
   const [orders, setOrders] = useState([]);
   const userData = useSelector((state) => state.auth.userData);
+  console.log("userdata", userData);
 
   const fetchOrders = async () => {
     const session = await getCurrentUser();
     const userDoc = await getUserById(session._id);
+    console.log("userDoc", userDoc);
 
     try {
       if (userDoc.status === "inactive") {
@@ -23,6 +25,7 @@ export default function PlaceOrder() {
 
       const response = await getOrderBySellerId(userDoc._id);
       setOrders(response);
+      console.log("response", response);
     } catch (error) {
       console.error("Error fetching seller orders:", error);
     }
@@ -71,7 +74,7 @@ export default function PlaceOrder() {
           key={order._id}
           className="bg-white p-4 rounded-lg shadow relative"
         >
-          {order.status !== "Delivered" && (
+          {order.status !== "Delivered" && order.buyerId && (
             <Link to={`/seller/complain?buyerId=${order.buyerId._id}`}>
               <button className="absolute top-4 right-4 bg-violet-500 text-white px-3 py-1 rounded hover:bg-violet-700">
                 Complaint to admin

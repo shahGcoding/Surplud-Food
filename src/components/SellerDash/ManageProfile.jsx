@@ -105,7 +105,7 @@ function ManageProfile() {
           <Input type="text" name="businessAddress" value={formData.businessAddress} onChange={handleChange} />
         </div>
 
-        <Button onClick={handleUpdate} className="mt-4 w-full">
+        <Button onClick={handleUpdate} className="mt-4 ml-60 bg-green-500 hover:bg-green-700 hover:cursor-pointer">
           Update Profile
         </Button>
       </div>

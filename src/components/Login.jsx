@@ -90,7 +90,9 @@ const login = async (data) => {
               })}
             />
 
-            <Button type="submit" className="w-full bg-green-700 hover:cursor-pointer hover:bg-green-500 text-white">
+            <Link to={"/forgot-password"} className="text-blue-600 ">forgot password?</Link>
+
+            <Button type="submit" className="w-full bg-green-700 hover:cursor-pointer hover:bg-green-500 mt-4 text-white">
               Sign in
             </Button>
           </div>

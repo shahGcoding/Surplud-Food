@@ -38,14 +38,14 @@ import Complain from "./pages/seller/Complain.jsx";
 import Commisions from "./components/SellerDash/Commissions.jsx";
 import AdminComission from "./components/AdminDash/AdminComission.jsx";
 import VerifyEmail from "./components/VerifyEmail.jsx";
+import Forgot from "./components/forgotPassword/Forgot.jsx";
+import Reset from "./components/forgotPassword/Reset.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-
-      // header component
 
       {
         path: "/",
@@ -68,6 +68,22 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/forgot-password",
+        element: (
+          <AuthLayout authentication={false}>
+            <Forgot />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/reset-password/:token",
+        element: (
+          <AuthLayout authentication={false}>
+            <Reset />
+          </AuthLayout>
+        ),
+      },
+      {
         path: "/aboutus",
         element: <About />,
       },
@@ -79,9 +95,6 @@ const router = createBrowserRouter([
           </AuthLayout>
         )
       },
-
-      // Footer component 
-
       {
         path: "/faqs",
         element: (
@@ -130,9 +143,6 @@ const router = createBrowserRouter([
           </AuthLayout>
         )
       },
-
-      // buyer component
-
       {
         path: "/buyer/buyercomplaint",
         element: (
